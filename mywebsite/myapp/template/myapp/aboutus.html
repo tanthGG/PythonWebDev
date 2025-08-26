@@ -1,12 +1,13 @@
 {% extends 'myapp/base.html' %}
+{% load static %}
 
 {% block myheader %}
-
 {% endblock myheader %}
 
-{%block content %}
+{% block content %}
+  <script src="{% static 'js/myJS.js' %}" defer></script>
+  <script>myJS()</script>
 
-    <h1>About us</h1>
-    <h2>This is the about us webpage</h2>
-
-{% endblock content%}
+  <h1>About us</h1>
+  <h2>This is the about us webpage</h2>
+{% endblock content %}
