@@ -1,0 +1,35 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block myheader %}
+    <center>All Contacts</center>
+{% endblock myheader %}
+
+{% block content %}
+<table class="table table-success table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Topic</th>
+            <th scope="col">Email</th>
+            <th scope="col">Detail</th>
+            <th scope="col">Complete</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in contact %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ data.topic }}</td>
+            <td>{{ data.email }}</td>
+            <td>{{ data.detail }}</td>
+            {% if data.complete %}
+                <td>Yes</td>
+            {% else %}
+                <td>No</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

@@ -4,18 +4,29 @@
 {% block myheader %}
     <link rel="stylesheet" href="{% static 'css/myCss.css' %}">
     <h1><center>Welcome to CoC Gamming Shop By Tanthai</center></h1>
+
+        {% if user.profile.usertype == 'VVIP' %}
+            <center><strong>15% Discount for VVIP member</strong></center>
+        {% elif user.profile.usertype == 'VIP' %}
+            <center><strong>10% Discount for VIP member</strong></center>
+        {% elif user.profile.usertype == 'member' %}
+            <center><strong>5% Discount for Member</strong></center>
+        {% endif %}
+    
 {% endblock myheader %}
 
 {% block content %}
 <center>
     {% for data in pd %}
-    <h1>{{ data.title }}</h1>
-    <p>
-        {{ data.description }} <br>
-        price : {{ data.price }} <br>
-        stock : {{ data.quantity }} <br>
-    </p>
-    <hr>
+        <h1>{{ data.title }}</h1>
+        <p>
+            {{ data.description }} <br>
+            price : {{ data.price }} <br>
+            stock : {{ data.quantity }} <br>
+        </p>
+        <hr>
     {% endfor %}
 </center>
 {% endblock content %}
+
+

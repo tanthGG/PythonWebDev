@@ -265,8 +265,13 @@
 
             <span class="fs-4"><div><h4>CoC Gaming Shop</h4></div></span>
           </a>
-
+          
           <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+            {% if user.profile.usertype == "admin" %}
+            <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{% url 'showcontact-page' %}"
+              >show contact</a
+            >
+            {% else %}
             <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="#"
               >PlayStation5</a
             >
@@ -276,8 +281,12 @@
             <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="#"
               >Nintendo Switch</a
             >
+          {% endif %}
+
           {% if user.is_authenticated %}
-            <a class="py-2 text-dark text-decoration-none" href="#">Hello, Admin</a>
+            <a class="py-2 text-dark text-decoration-none" href="#">Hello, 
+              {{user.first_name}} [{{user.profile.usertype}}]
+            </a>
             <a class="py-2 text-dark text-decoration-none" href="{% url 'logout' %}?next={% url 'login' %}">(Log out)</a>
           {% else %}
             <a class="py-2 text-dark text-decoration-none" href="{% url 'login' %}">Log in</a>

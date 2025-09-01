@@ -47,3 +47,11 @@ def userLogin(request):
             return redirect('home')
         context['message'] = "Username or password is incorrect."
     return render(request, 'myapp/login.html', context)
+
+def showContact(request):
+    allcontact = contactList.objects.all()
+    # allcontact = contactList.objects.all().order_by('-id')  # reverse list (latest first)
+    context = {'contact': allcontact}
+    return render(request, 'myapp/showcontact.html', context)
+
+
