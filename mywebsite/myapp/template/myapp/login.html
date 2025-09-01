@@ -1,0 +1,26 @@
+{% extends 'myapp/base.html' %}
+
+{% block myheader %}
+<h1>Contact US</h1>
+{% endblock myheader %}
+
+{% block content %}
+
+{% if message %}
+  <h3>{{ message }}</h3>
+{% else %}
+  <form method="POST" action="">
+    {% csrf_token %} <!-- Cross-site request forgery -->
+    <div class="form-group">
+      <label for="username">User:</label>
+      <input type="text" class="form-control" id="username" name="username">
+    </div>
+    <div class="form-group">
+      <label for="password">Pass:</label>
+      <input type="password" class="form-control" id="password" name="password">
+    </div>
+    <button type="submit" class="btn btn-primary">Log in</button>
+  </form>
+{% endif %}
+
+{% endblock content %}

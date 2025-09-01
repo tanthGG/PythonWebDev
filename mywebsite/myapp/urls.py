@@ -1,10 +1,11 @@
 from django.urls import path
+from . import views
 
 from .views import *
 
-urlpatterns = [ 
-    # localhost: 8000
-    path('', home),
-    #localhost: 8000/about
-    path('about/', aboutUs, name="about-page"),
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.aboutUs, name='about-page'),   # name must match template
+    path('contact/', views.contact, name='contact-page'),
 ]
