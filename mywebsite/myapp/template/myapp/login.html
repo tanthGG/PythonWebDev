@@ -1,7 +1,7 @@
 {% extends 'myapp/base.html' %}
 
 {% block myheader %}
-<h1>Contact US</h1>
+<h1>Login</h1>
 {% endblock myheader %}
 
 {% block content %}
@@ -10,7 +10,7 @@
   <h3>{{ message }}</h3>
 {% else %}
   <form method="POST" action="">
-    {% csrf_token %} <!-- Cross-site request forgery -->
+    {% csrf_token %} 
     <div class="form-group">
       <label for="username">User:</label>
       <input type="text" class="form-control" id="username" name="username">
@@ -21,6 +21,9 @@
     </div>
     <button type="submit" class="btn btn-primary">Log in</button>
   </form>
+  <p>
+    <a href="{% url 'register-page' %}">Create New Account</a>
+  </p>
 {% endif %}
 
 {% endblock content %}

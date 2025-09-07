@@ -1,0 +1,42 @@
+{% extends 'myapp/base.html' %}
+
+{% block myheader %}
+<h1> Edit Profile </h1>
+{% endblock myheader %}
+
+{% block content %}
+    <form method="POST" action="">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username"
+                   value="{{ profile.user.username }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="firstname">Firstname:</label>
+            <input type="text" class="form-control" id="firstname" name="firstname"
+                   value="{{ profile.user.first_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="lastname">Lastname:</label>
+            <input type="text" class="form-control" id="lastname" name="lastname"
+                   value="{{ profile.user.last_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email"
+                   value="{{ profile.user.email }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">New-Password:</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Edit Profile</button>
+    </form>
+{% endblock content %}
