@@ -11,5 +11,6 @@ urlpatterns = [
     path('showcontact/', showContact, name='showcontact-page'),
     path('register/', userRegist, name="register-page"),
     path('profile/', userProfile, name="profile-page"),
-    path('editprofile/', editProfile, name="editprofile-page")
+    path('editprofile/', editProfile, name="editprofile-page"),
+     path('action/<int:cid>', actionPage, name="action-page"),
 ]

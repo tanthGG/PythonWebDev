@@ -20,7 +20,9 @@
         {% for data in contact %}
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
-            <td>{{ data.topic }}</td>
+            <td>
+                <a href="{% url 'action-page' data.id %}">{{ data.topic }}</a>
+            </td>
             <td>{{ data.email }}</td>
             <td>{{ data.detail }}</td>
             {% if data.complete %}

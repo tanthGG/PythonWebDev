@@ -1,0 +1,31 @@
+{% extends 'myapp/base.html' %}
+
+{% block myheader %}
+<h1> Action detail </h1>
+{% endblock myheader %}
+
+{% block content %}
+    <div class="container">
+        <h3>Topic: {{ contact.topic }}</h3><br>
+        <p>
+            Email: {{ contact.email }}<br>
+            Detail: {{ contact.detail }}<br>
+            <hr>
+        </p>
+    </div>
+
+    <!-- CRUD Form -->
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="actiondetail">Action Detail:</label>
+            <textarea class="form-control" rows="5" id="actiondetail" name="actiondetail">
+                {{ action.actionDetail }}
+            </textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" name="save">Save</button>
+        <button type="submit" class="btn btn-danger" name="delete">Delete</button>
+        <button type="submit" class="btn btn-success" name="complete">Complete</button>
+    </form>
+{% endblock content %}

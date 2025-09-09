@@ -4,3 +4,4 @@ from .models import *
 admin.site.register(Product)
 admin.site.register(contactList)
 admin.site.register(Profile)
+admin.site.register(Action)

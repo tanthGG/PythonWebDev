@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import *
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 from django.http import HttpResponse
 
@@ -45,10 +46,16 @@ def userLogin(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            # Check if ?next= exists in the URL
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('home')  # fallback
         context['message'] = "Username or password is incorrect."
     return render(request, 'myapp/login.html', context)
 
+@login_required(login_url='/login')
 def showContact(request):
     allcontact = contactList.objects.all()
     # allcontact = contactList.objects.all().order_by('-id')  # reverse list (latest first)
@@ -140,5 +147,57 @@ def editProfile(request):
 
     return render(request, 'myapp/editprofile.html', context)
 
-
+def actionPage(request, cid):
+    context = {}
+    contact = contactList.objects.get(id=cid)
+    context['contact'] = contact
+    return render(request, 'myapp/action.html', context) 
         
+from django.shortcuts import render, redirect
+from .models import contactList, Action
+
+def actionPage(request, cid):
+    # cid = contactList ID
+    context = {}
+    contact = contactList.objects.get(id=cid)
+    context['contact'] = contact
+
+    try:
+        action = Action.objects.get(contactList=contact)
+        context['action'] = action
+    except:
+        pass
+
+    if request.method == 'POST':
+        data = request.POST.copy()
+        actiondetail = data.get('actiondetail')
+
+        # --- SAVE ---
+        if 'save' in data:
+            try:
+                check = Action.objects.get(contactList=contact)
+                check.actionDetail = actiondetail
+                check.save()
+                context['action'] = check
+            except:
+                new = Action()
+                new.contactList = contact
+                new.actionDetail = actiondetail
+                new.save()
+                context['action'] = new
+
+        # --- DELETE ---
+        elif 'delete' in data:
+            try:
+                contact.delete()
+                return redirect('showcontact-page')
+            except:
+                pass
+
+        # --- COMPLETE ---
+        elif 'complete' in data:
+            contact.complete = True
+            contact.save()
+            return redirect('showcontact-page')
+
+    return render(request, 'myapp/action.html', context)
