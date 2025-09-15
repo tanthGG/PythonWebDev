@@ -1,0 +1,52 @@
+{% extends 'myapp/base.html' %}
+
+{% block myheader %}
+<h1> Add Product </h1>
+{% endblock myheader %}
+
+{% block content %}
+  {% if message %}
+    <h3>{{ message }}</h3>
+  {% else %}
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %} <!-- Cross-site request forgery -->
+      
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea class="form-control" rows="5" id="description" name="description" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="text" class="form-control" id="price" name="price" required>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Quantity:</label>
+        <input type="text" class="form-control" id="quantity" name="quantity" value="0" required>
+      </div>
+
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="yes" id="instock" name="instock">
+        <label class="form-check-label" for="instock">Instock?</label>
+      </div>
+
+      <div class="mb-3">
+        <label for="picture" class="form-label">Picture:</label>
+        <input class="form-control" type="file" id="picture" name="picture">
+      </div>
+
+      <div class="mb-3">
+        <label for="specfile" class="form-label">Specfile:</label>
+        <input class="form-control" type="file" id="specfile" name="specfile">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add Product</button>
+    </form>
+  {% endif %}
+{% endblock content %}

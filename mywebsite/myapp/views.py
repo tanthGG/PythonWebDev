@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate,login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
+from django.core.files.storage import FileSystemStorage
+
 from django.http import HttpResponse
 
 def home(request):
@@ -201,3 +203,49 @@ def actionPage(request, cid):
             return redirect('showcontact-page')
 
     return render(request, 'myapp/action.html', context)
+
+def addProduct(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        title = data.get('title')
+        description = data.get('description')
+        price = data.get('price')
+        quantity = data.get('quantity')
+        instock = data.get('instock')
+
+        new = Product()
+        new.title = title
+        new.description = description
+        new.price = float(price)
+        new.quantity = int(quantity)
+
+        if instock == 'instock':
+            new.instock = True
+        else:
+            new.instock = False
+
+        if 'picture' in request.FILES:
+            file_image = request.FILES['picture']
+            file_image_name = file_image.name.replace(' ', '_')  # delete space in file name
+            # File system: from django.core.files.storage import FileSystemStorage
+            fs = FileSystemStorage(location='media/product')
+            filename = fs.save(file_image_name, file_image)
+            upload_file_url = fs.url(filename)
+            print('Picture url :', upload_file_url)
+            new.picture = 'product' + upload_file_url[6:]
+
+        if 'specfile' in request.FILES:
+            file_specfile = request.FILES['specfile']
+            file_specfile_name = file_specfile.name.replace(' ', '_')  # delete space in file name
+            # FileSystemStorage: from django.core.files.storage import FileSystemStorage
+            fs = FileSystemStorage(location='media/specfile')
+            filename = fs.save(file_specfile_name, file_specfile)
+            upload_file_url = fs.url(filename)
+            print('Specfile url :', upload_file_url)
+            new.specfile = 'specfile' + upload_file_url[6:]
+
+        new.save()
+
+    return render(request, 'myapp/addproduct.html')
+
+

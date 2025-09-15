@@ -22,6 +22,9 @@ from django.contrib.auth import views as auth_views
 
 from myapp.views import userLogin
 
+from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
+from . import settings
+
 
 
 urlpatterns = [
@@ -30,3 +33,6 @@ urlpatterns = [
     path('login/', userLogin, name='login'),   # custom function-based login
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
+
+urlpatterns += staticfiles_urlpatterns()
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

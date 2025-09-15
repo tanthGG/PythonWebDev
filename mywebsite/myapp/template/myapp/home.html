@@ -16,17 +16,22 @@
 {% endblock myheader %}
 
 {% block content %}
-<center>
-    {% for data in pd %}
-        <h1>{{ data.title }}</h1>
-        <p>
-            {{ data.description }} <br>
-            price : {{ data.price }} <br>
-            stock : {{ data.quantity }} <br>
-        </p>
-        <hr>
-    {% endfor %}
-</center>
+    <center>
+        {% for data in pd %}
+            <h1>{{ data.title }}</h1>
+            {% if data.picture %}
+                <img src="{{ data.picture.url }}" width="400">
+            {% endif %}
+            <p>
+                {{ data.description }} <br>
+                price : {{ data.price }} <br>
+                stock : {{ data.quantity }} <br>
+                {% if data.specfile %}
+                    specfile : <a href="{{ data.specfile.url }}"> download </a>
+                {% endif %}
+            </p>
+            <hr>
+        {% endfor %}
+    </center>
 {% endblock content %}
-
 
