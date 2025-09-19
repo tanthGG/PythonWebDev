@@ -6,13 +6,36 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
 
 from django.http import HttpResponse
 
 def home(request):
     allproduct = Product.objects.all()
-    context = {'pd': allproduct}
+    product_per_page = 3
+    paginator = Paginator(allproduct, product_per_page)
+    page = request.GET.get('page')
+    allproduct = paginator.get_page(page)
+
+    context = {'allproduct': allproduct}
+
+    # 1 row 3 cols
+    allrow = []
+    row = []
+    for i, p in enumerate(allproduct):
+        if i % 3 == 0:
+            if i != 0:
+                allrow.append(row)
+                row = []
+            row.append(p)
+        else:
+            row.append(p)
+    allrow.append(row)
+
+    context['allrow'] = allrow
+
     return render(request, 'myapp/home.html', context)
+
 
 def aboutUs(request):
     return render(request, 'myapp/aboutus.html')
@@ -248,4 +271,5 @@ def addProduct(request):
 
     return render(request, 'myapp/addproduct.html')
 
-
+def handler404(request, exception):
+    return render(request, 'myapp/404errorPage.html')

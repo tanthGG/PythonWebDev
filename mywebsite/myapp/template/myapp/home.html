@@ -5,33 +5,70 @@
     <link rel="stylesheet" href="{% static 'css/myCss.css' %}">
     <h1><center>Welcome to CoC Gamming Shop By Tanthai</center></h1>
 
-        {% if user.profile.usertype == 'VVIP' %}
-            <center><strong>15% Discount for VVIP member</strong></center>
-        {% elif user.profile.usertype == 'VIP' %}
-            <center><strong>10% Discount for VIP member</strong></center>
-        {% elif user.profile.usertype == 'member' %}
-            <center><strong>5% Discount for Member</strong></center>
-        {% endif %}
-    
+    {% if user.profile.usertype == 'VVIP' %}
+        <center><strong>15% Discount for VVIP member</strong></center>
+    {% elif user.profile.usertype == 'VIP' %}
+        <center><strong>10% Discount for VIP member</strong></center>
+    {% elif user.profile.usertype == 'member' %}
+        <center><strong>5% Discount for Member</strong></center>
+    {% endif %}
 {% endblock myheader %}
 
 {% block content %}
-    <center>
-        {% for data in pd %}
-            <h1>{{ data.title }}</h1>
-            {% if data.picture %}
-                <img src="{{ data.picture.url }}" width="400">
-            {% endif %}
-            <p>
-                {{ data.description }} <br>
-                price : {{ data.price }} <br>
-                stock : {{ data.quantity }} <br>
-                {% if data.specfile %}
-                    specfile : <a href="{{ data.specfile.url }}"> download </a>
-                {% endif %}
-            </p>
-            <hr>
-        {% endfor %}
-    </center>
-{% endblock content %}
+<center>
+    {% for row in allrow %}
+        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+            {% for c in row %}
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        {% if c.picture %}
+                            <img src="{{ c.picture.url }}"
+                                 class="card-img-top"
+                                 width="200" height="300">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ c.title }}</h5>
+                            <p class="card-text">{{ c.price }} ฿</p>
+                            <a href="#" class="btn btn-primary">more detail</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</center>
 
+<hr>
+
+<!-- Pagination -->
+<ul class="pagination justify-content-center">
+    {% if allproduct.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ allproduct.previous_page_number }}"> &lt; </a>
+        </li>
+    {% endif %}
+
+    {% for num in allproduct.paginator.page_range %}
+        {% if allproduct.number == num %}
+            <li class="page-item active">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+        {% elif num >= allproduct.number|add:-2 and num <= allproduct.number|add:2 %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+
+    {% if allproduct.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ allproduct.next_page_number }}"> &gt; </a>
+        </li>
+    {% endif %}
+</ul>
+
+<p class="text-center">
+    Page {{ allproduct.number }} of {{ allproduct.paginator.num_pages }}
+</p>
+
+{% endblock content %}

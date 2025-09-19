@@ -25,6 +25,8 @@ from myapp.views import userLogin
 from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
 from . import settings
 
+from django.conf.urls import handler404
+
 
 
 urlpatterns = [
@@ -36,3 +38,5 @@ urlpatterns = [
 
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'myapp.views.handler404'
