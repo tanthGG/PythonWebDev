@@ -28,11 +28,47 @@
         if (form) {
           form.reset();
         }
+
         var modalElement = document.getElementById('productSuccessModal');
-        if (modalElement && window.bootstrap) {
-          var modal = new bootstrap.Modal(modalElement);
-          modal.show();
+        if (!modalElement) {
+          return;
         }
+
+        if (window.bootstrap && window.bootstrap.Modal) {
+          var modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+          modal.show();
+          return;
+        }
+
+        modalElement.classList.add('show');
+        modalElement.style.display = 'block';
+        modalElement.removeAttribute('aria-hidden');
+        modalElement.setAttribute('aria-modal', 'true');
+
+        var backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+
+        var closeModal = function () {
+          modalElement.classList.remove('show');
+          modalElement.style.display = 'none';
+          modalElement.setAttribute('aria-hidden', 'true');
+          modalElement.removeAttribute('aria-modal');
+          if (backdrop && backdrop.parentNode) {
+            backdrop.parentNode.removeChild(backdrop);
+          }
+        };
+
+        var closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+        closeButtons.forEach(function (btn) {
+          btn.addEventListener('click', closeModal);
+        });
+
+        modalElement.addEventListener('click', function (event) {
+          if (event.target === modalElement) {
+            closeModal();
+          }
+        });
       });
     </script>
   {% endif %}
