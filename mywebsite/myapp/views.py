@@ -286,6 +286,9 @@ def handler404(request, exception):
 
 @login_required(login_url='/login')
 def user_management(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse('Forbidden', status=403)
+
     users = User.objects.select_related('profile').order_by('username')
 
     initial_users = []
