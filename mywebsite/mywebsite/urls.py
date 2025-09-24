@@ -27,6 +27,9 @@ from . import settings
 
 from django.conf.urls import handler404
 
+from django.contrib import admin
+from django.urls import path, include
+
 
 
 urlpatterns = [
@@ -34,9 +37,13 @@ urlpatterns = [
     path('', include('myapp.urls')),
     path('login/', userLogin, name='login'),   # custom function-based login
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    path("admin/", admin.site.urls),
+    path("", include("myapp.urls")),
 ]
 
+# Always serve static and media in dev
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 handler404 = 'myapp.views.handler404'

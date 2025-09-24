@@ -1,0 +1,451 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block myheader %}
+  <h1 class="display-6 mb-2">User management</h1>
+  <p class="lead text-body-secondary mb-0">Create, update, and remove application users with live feedback.</p>
+{% endblock myheader %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <span class="fw-semibold">Existing users</span>
+          <small class="text-body-secondary">Click a row's action to edit or remove</small>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0" id="user-table">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+                <th scope="col">Points</th>
+                <th scope="col" class="text-end">Status</th>
+                <th scope="col" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2 class="h5 mb-0" id="user-form-title">Create new user</h2>
+        </div>
+        <div class="card-body">
+          <div id="form-alert" class="alert d-none" role="alert"></div>
+          <form id="user-form" novalidate>
+            {% csrf_token %}
+            <input type="hidden" id="user-id" name="id">
+
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label for="user-username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="user-username" name="username" required>
+              </div>
+              <div class="col-sm-6">
+                <label for="user-email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="user-email" name="email" placeholder="user@example.com">
+              </div>
+              <div class="col-sm-6">
+                <label for="user-first-name" class="form-label">First name</label>
+                <input type="text" class="form-control" id="user-first-name" name="first_name">
+              </div>
+              <div class="col-sm-6">
+                <label for="user-last-name" class="form-label">Last name</label>
+                <input type="text" class="form-control" id="user-last-name" name="last_name">
+              </div>
+              <div class="col-12">
+                <label for="user-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="user-password" name="password" autocomplete="new-password">
+                <div class="form-text">Leave blank when editing to keep the current password.</div>
+              </div>
+              <div class="col-md-6">
+                <label for="user-usertype" class="form-label">User type</label>
+                <input type="text" class="form-control" id="user-usertype" name="usertype" placeholder="member / VIP / admin">
+              </div>
+              <div class="col-md-6">
+                <label for="user-point" class="form-label">Points</label>
+                <input type="number" class="form-control" id="user-point" name="point" min="0" step="1" value="0">
+              </div>
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="user-is-active" name="is_active" checked>
+                  <label class="form-check-label" for="user-is-active">Active</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="user-is-staff" name="is_staff">
+                  <label class="form-check-label" for="user-is-staff">Staff privileges</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+              <button type="submit" class="btn btn-primary" id="user-submit">Create user</button>
+              <button type="button" class="btn btn-outline-secondary" id="user-reset">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script id="initial-users-data" type="application/json">{{ initial_users_json|safe }}</script>
+
+  <script>
+    (function () {
+      const endpoints = {
+        detail: "{% url 'ajax_user_detail' %}",
+        create: "{% url 'ajax_user_create' %}",
+        update: "{% url 'ajax_user_update' %}",
+        delete: "{% url 'ajax_user_delete' %}"
+      };
+
+      const currentUserId = Number('{{ current_user_id|default:0 }}');
+      const tableBody = document.querySelector('#user-table tbody');
+      const form = document.getElementById('user-form');
+      const formTitle = document.getElementById('user-form-title');
+      const alertBox = document.getElementById('form-alert');
+      const submitButton = document.getElementById('user-submit');
+      const resetButton = document.getElementById('user-reset');
+
+      const idInput = document.getElementById('user-id');
+      const usernameInput = document.getElementById('user-username');
+      const emailInput = document.getElementById('user-email');
+      const firstNameInput = document.getElementById('user-first-name');
+      const lastNameInput = document.getElementById('user-last-name');
+      const passwordInput = document.getElementById('user-password');
+      const usertypeInput = document.getElementById('user-usertype');
+      const pointInput = document.getElementById('user-point');
+      const isActiveInput = document.getElementById('user-is-active');
+      const isStaffInput = document.getElementById('user-is-staff');
+
+      let activeRowId = null;
+
+      const csrftoken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+      const showMessage = (message, type = 'success') => {
+        alertBox.textContent = message;
+        alertBox.className = `alert alert-${type}`;
+      };
+
+      const clearMessage = () => {
+        alertBox.textContent = '';
+        alertBox.className = 'alert d-none';
+      };
+
+      const setActiveRow = (userId) => {
+        if (activeRowId) {
+          const previous = tableBody.querySelector(`tr[data-user-id="${activeRowId}"]`);
+          if (previous) {
+            previous.classList.remove('table-active');
+          }
+        }
+        if (userId) {
+          const row = tableBody.querySelector(`tr[data-user-id="${userId}"]`);
+          if (row) {
+            row.classList.add('table-active');
+          }
+        }
+        activeRowId = userId || null;
+      };
+
+      const emptyCell = () => {
+        const cell = document.createElement('td');
+        cell.textContent = '-';
+        cell.classList.add('text-body-secondary');
+        return cell;
+      };
+
+      const renderStatusBadge = (isActive) => {
+        const badge = document.createElement('span');
+        badge.className = `badge ${isActive ? 'text-bg-success' : 'text-bg-secondary'}`;
+        badge.textContent = isActive ? 'Active' : 'Inactive';
+        return badge;
+      };
+
+      const buildRow = (user) => {
+        const row = document.createElement('tr');
+        row.dataset.userId = user.id;
+        row.dataset.username = user.username || '';
+        row.dataset.firstName = user.first_name || '';
+        row.dataset.lastName = user.last_name || '';
+        row.dataset.email = user.email || '';
+        row.dataset.usertype = user.usertype || '';
+        row.dataset.point = user.point !== null && user.point !== undefined ? user.point : '';
+        row.dataset.isActive = user.is_active ? 'true' : 'false';
+        row.dataset.isStaff = user.is_staff ? 'true' : 'false';
+        row.dataset.isSuperuser = user.is_superuser ? 'true' : 'false';
+
+        const usernameCell = document.createElement('td');
+        usernameCell.classList.add('fw-semibold');
+        usernameCell.textContent = user.username || '';
+        row.appendChild(usernameCell);
+
+        if (user.first_name || user.last_name) {
+          const nameCell = document.createElement('td');
+          nameCell.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+          row.appendChild(nameCell);
+        } else {
+          row.appendChild(emptyCell());
+        }
+
+        if (user.email) {
+          const emailCell = document.createElement('td');
+          const emailLink = document.createElement('a');
+          emailLink.href = `mailto:${user.email}`;
+          emailLink.className = 'link-body-emphasis';
+          emailLink.textContent = user.email;
+          emailCell.appendChild(emailLink);
+          row.appendChild(emailCell);
+        } else {
+          row.appendChild(emptyCell());
+        }
+
+        const roleCell = document.createElement('td');
+        let roleLabel = 'Member';
+        if (user.is_superuser) {
+          roleLabel = 'Superuser';
+        } else if (user.is_staff) {
+          roleLabel = 'Staff';
+        } else if (user.usertype) {
+          roleLabel = user.usertype;
+        }
+        roleCell.textContent = roleLabel;
+        row.appendChild(roleCell);
+
+        const pointsCell = document.createElement('td');
+        pointsCell.textContent = user.point !== null && user.point !== undefined ? user.point : '0';
+        row.appendChild(pointsCell);
+
+        const statusCell = document.createElement('td');
+        statusCell.classList.add('text-end');
+        statusCell.appendChild(renderStatusBadge(Boolean(user.is_active)));
+        row.appendChild(statusCell);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.classList.add('text-end');
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn btn-sm btn-outline-primary me-2';
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', () => editUser(user.id));
+        actionsCell.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn btn-sm btn-outline-danger';
+        deleteButton.textContent = 'Delete';
+        if (user.is_superuser || user.id === currentUserId) {
+          deleteButton.disabled = true;
+          deleteButton.title = 'Superusers and the current account cannot be deleted.';
+        } else {
+          deleteButton.addEventListener('click', () => deleteUser(user.id));
+        }
+        actionsCell.appendChild(deleteButton);
+
+        row.appendChild(actionsCell);
+
+        return row;
+      };
+
+      const sortRows = () => {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        rows.sort((a, b) => a.dataset.username.localeCompare(b.dataset.username));
+        rows.forEach((row) => tableBody.appendChild(row));
+      };
+
+      const upsertRow = (user) => {
+        const existing = tableBody.querySelector(`tr[data-user-id="${user.id}"]`);
+        if (existing) {
+          existing.remove();
+        }
+        const newRow = buildRow(user);
+        tableBody.appendChild(newRow);
+        sortRows();
+      };
+
+      const removeRow = (userId) => {
+        const row = tableBody.querySelector(`tr[data-user-id="${userId}"]`);
+        if (row) {
+          row.remove();
+        }
+      };
+
+      const fillForm = (user) => {
+        idInput.value = user.id;
+        usernameInput.value = user.username || '';
+        emailInput.value = user.email || '';
+        firstNameInput.value = user.first_name || '';
+        lastNameInput.value = user.last_name || '';
+        passwordInput.value = '';
+        usertypeInput.value = user.usertype || '';
+        pointInput.value = user.point !== null && user.point !== undefined ? user.point : '';
+        isActiveInput.checked = Boolean(user.is_active);
+        isStaffInput.checked = Boolean(user.is_staff);
+
+        submitButton.textContent = 'Update user';
+        formTitle.textContent = `Edit user - ${user.username}`;
+        setActiveRow(user.id);
+      };
+
+      const resetForm = () => {
+        form.reset();
+        idInput.value = '';
+        pointInput.value = '0';
+        submitButton.textContent = 'Create user';
+        formTitle.textContent = 'Create new user';
+        clearMessage();
+        setActiveRow(null);
+      };
+
+      const handleError = async (response) => {
+        let message = 'Unexpected error';
+        try {
+          const data = await response.json();
+          message = data.error || message;
+        } catch (error) {
+          // ignore JSON parsing failure
+        }
+        showMessage(message, 'danger');
+      };
+
+      const editUser = (userId) => {
+        fetch(`${endpoints.detail}?id=${userId}`)
+          .then((response) => {
+            if (!response.ok) {
+              return handleError(response);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (!data || !data.user) {
+              return;
+            }
+            fillForm(data.user);
+            showMessage('User loaded. Make changes and press "Update user".', 'info');
+          })
+          .catch(() => {
+            showMessage('Unable to load user details.', 'danger');
+          });
+      };
+
+      const deleteUser = (userId) => {
+        if (!confirm('Are you sure you want to delete this user?')) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('id', userId);
+
+        fetch(endpoints.delete, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken
+          },
+          body: formData
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return handleError(response);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (!data || !data.deleted) {
+              return;
+            }
+            removeRow(userId);
+            if (String(idInput.value) === String(userId)) {
+              resetForm();
+            }
+            showMessage('User deleted successfully.', 'success');
+          })
+          .catch(() => {
+            showMessage('Unable to delete user.', 'danger');
+          });
+      };
+
+      const prepareFormData = (isUpdate) => {
+        const formData = new FormData(form);
+
+        if (isUpdate) {
+          formData.set('id', idInput.value);
+        } else {
+          formData.delete('id');
+        }
+
+        formData.set('is_active', isActiveInput.checked ? 'true' : 'false');
+        formData.set('is_staff', isStaffInput.checked ? 'true' : 'false');
+        formData.set('point', pointInput.value || '0');
+
+        if (!passwordInput.value) {
+          formData.delete('password');
+        }
+
+        return formData;
+      };
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        clearMessage();
+
+        const isUpdate = Boolean(idInput.value);
+        const formData = prepareFormData(isUpdate);
+
+        const url = isUpdate ? endpoints.update : endpoints.create;
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken
+          },
+          body: formData
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return handleError(response);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (!data || !data.user) {
+              return;
+            }
+            upsertRow(data.user);
+            if (isUpdate) {
+              fillForm(data.user);
+              showMessage('User updated successfully.', 'success');
+            } else {
+              resetForm();
+              showMessage('User created successfully.', 'success');
+            }
+          })
+          .catch(() => {
+            showMessage('Unable to save user.', 'danger');
+          });
+      });
+
+      resetButton.addEventListener('click', () => {
+        resetForm();
+      });
+
+      form.addEventListener('reset', () => {
+        clearMessage();
+      });
+
+      const initialUsersScript = document.getElementById('initial-users-data');
+      if (initialUsersScript) {
+        const initialUsers = JSON.parse(initialUsersScript.textContent);
+        initialUsers.forEach((user) => upsertRow(user));
+        sortRows();
+      }
+    })();
+  </script>
+{% endblock content %}

@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import *
@@ -7,6 +9,13 @@ from django.contrib.auth.decorators import login_required
 
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
+
+from django.shortcuts import render
+from django.views.generic import View, ListView
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from .models import Product
 
 from django.http import HttpResponse
 
@@ -273,3 +282,252 @@ def addProduct(request):
 
 def handler404(request, exception):
     return render(request, 'myapp/404errorPage.html')
+
+
+@login_required(login_url='/login')
+def user_management(request):
+    users = User.objects.select_related('profile').order_by('username')
+
+    initial_users = []
+    for user in users:
+        profile = getattr(user, 'profile', None)
+        initial_users.append({
+            'id': user.id,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'is_active': user.is_active,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
+            'usertype': profile.usertype if profile else '',
+            'point': profile.point if profile else 0,
+        })
+
+    initial_users_json = json.dumps(initial_users).replace('</', '<\\/')
+
+    context = {
+        'initial_users_json': initial_users_json,
+        'current_user_id': request.user.id,
+    }
+
+    return render(request, 'myapp/user_management.html', context)
+
+def _extract_data(request):
+    if request.method == "POST" and request.POST:
+        return request.POST
+    return request.GET
+
+
+def _parse_int(value, default=0):
+    if value in (None, ""):
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        raise ValueError("Invalid quantity")
+
+
+def _parse_bool(value, default=None):
+    if value in (None, ""):
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).lower() in {"true", "1", "yes", "on", "y", "t"}
+
+
+def _get_profile(user):
+    try:
+        return user.profile
+    except Profile.DoesNotExist:
+        return None
+
+
+def _serialize_user(user):
+    profile = _get_profile(user)
+    return {
+        "id": user.id,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "is_active": user.is_active,
+        "is_staff": user.is_staff,
+        "is_superuser": user.is_superuser,
+        "usertype": profile.usertype if profile else None,
+        "point": profile.point if profile else None,
+    }
+
+
+class ProductListView(ListView):
+    model = Product
+    template_name = "myapp/product_list.html"
+    context_object_name = "product_list"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset().order_by("title")
+        term = self.request.GET.get("search")
+        if term:
+            queryset = queryset.filter(
+                Q(title__icontains=term) | Q(description__icontains=term)
+            )
+        return queryset
+
+
+class UserDetailAjax(View):
+    http_method_names = ["get"]
+
+    def get(self, request):
+        user_id = request.GET.get("id")
+        if not user_id:
+            return JsonResponse({"error": "Missing user id"}, status=400)
+
+        user = get_object_or_404(User, pk=user_id)
+        return JsonResponse({"user": _serialize_user(user)})
+
+
+class CreateUserAjax(View):
+    http_method_names = ["get", "post"]
+
+    def _handle(self, request):
+        data = _extract_data(request)
+
+        username = data.get("username")
+        password = data.get("password")
+
+        if not username or not password:
+            return JsonResponse({"error": "Username and password are required"}, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({"error": "Username already exists"}, status=400)
+
+        user = User(
+            username=username,
+            first_name=data.get("first_name", ""),
+            last_name=data.get("last_name", ""),
+            email=data.get("email", ""),
+        )
+        user.set_password(password)
+
+        is_active = _parse_bool(data.get("is_active"), default=True)
+        if is_active is not None:
+            user.is_active = is_active
+
+        is_staff = _parse_bool(data.get("is_staff"), default=user.is_staff)
+        if is_staff is not None:
+            user.is_staff = is_staff
+
+        user.save()
+
+        profile = _get_profile(user) or Profile(user=user)
+        if "usertype" in data and data.get("usertype"):
+            profile.usertype = data.get("usertype")
+        if "point" in data:
+            try:
+                profile.point = _parse_int(data.get("point"), default=profile.point)
+            except ValueError as exc:
+                return JsonResponse({"error": str(exc)}, status=400)
+        profile.save()
+
+        return JsonResponse({"user": _serialize_user(user)}, status=201)
+
+    def get(self, request):
+        return self._handle(request)
+
+    def post(self, request):
+        return self._handle(request)
+
+
+class UpdateUserAjax(View):
+    http_method_names = ["get", "post"]
+
+    def _handle(self, request):
+        data = _extract_data(request)
+        user_id = data.get("id")
+        if not user_id:
+            return JsonResponse({"error": "Missing user id"}, status=400)
+
+        user = get_object_or_404(User, pk=user_id)
+
+        if "username" in data and data.get("username") != user.username:
+            new_username = data.get("username")
+            if not new_username:
+                return JsonResponse({"error": "Username cannot be blank"}, status=400)
+            if User.objects.filter(username=new_username).exclude(pk=user.pk).exists():
+                return JsonResponse({"error": "Username already exists"}, status=400)
+            user.username = new_username
+
+        if "first_name" in data:
+            user.first_name = data.get("first_name", "")
+        if "last_name" in data:
+            user.last_name = data.get("last_name", "")
+        if "email" in data:
+            user.email = data.get("email", "")
+
+        if data.get("password"):
+            user.set_password(data.get("password"))
+
+        if "is_active" in data:
+            is_active = _parse_bool(data.get("is_active"), default=user.is_active)
+            if is_active is not None:
+                user.is_active = is_active
+
+        if "is_staff" in data:
+            is_staff = _parse_bool(data.get("is_staff"), default=user.is_staff)
+            if is_staff is not None:
+                user.is_staff = is_staff
+
+        user.save()
+
+        profile = _get_profile(user) or Profile(user=user)
+
+        if "usertype" in data:
+            value = data.get("usertype")
+            if value:
+                profile.usertype = value
+        if "point" in data:
+            try:
+                profile.point = _parse_int(data.get("point"), default=profile.point)
+            except ValueError as exc:
+                return JsonResponse({"error": str(exc)}, status=400)
+
+        profile.save()
+
+        return JsonResponse({"user": _serialize_user(user)})
+
+    def get(self, request):
+        return self._handle(request)
+
+    def post(self, request):
+        return self._handle(request)
+
+
+class DeleteUserAjax(View):
+    http_method_names = ["get", "post", "delete"]
+
+    def _handle(self, request):
+        data = _extract_data(request)
+        user_id = data.get("id")
+        if not user_id:
+            return JsonResponse({"error": "Missing user id"}, status=400)
+
+        user = get_object_or_404(User, pk=user_id)
+
+        if user.is_superuser:
+            return JsonResponse({"error": "Cannot delete a superuser"}, status=403)
+
+        if request.user.is_authenticated and request.user.pk == user.pk:
+            return JsonResponse({"error": "Users cannot delete themselves"}, status=403)
+
+        user.delete()
+        return JsonResponse({"deleted": True})
+
+    def get(self, request):
+        return self._handle(request)
+
+    def post(self, request):
+        return self._handle(request)
+
+    def delete(self, request):
+        return self._handle(request)

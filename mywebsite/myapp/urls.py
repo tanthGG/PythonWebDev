@@ -14,4 +14,10 @@ urlpatterns = [
     path('editprofile/', editProfile, name="editprofile-page"),
     path('action/<int:cid>', actionPage, name="action-page"),
     path('addproduct/', addProduct, name="addproduct-page"),
+    path('users/manage/', views.user_management, name='user-management-page'),
+    path("products/", views.ProductListView.as_view(), name="product_list"),
+    path("ajax/user/detail/", views.UserDetailAjax.as_view(), name="ajax_user_detail"),
+    path("ajax/user/create/", views.CreateUserAjax.as_view(), name="ajax_user_create"),
+    path("ajax/user/update/", views.UpdateUserAjax.as_view(), name="ajax_user_update"),
+    path("ajax/user/delete/", views.DeleteUserAjax.as_view(), name="ajax_user_delete"),
 ]
