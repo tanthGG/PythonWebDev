@@ -1,0 +1,61 @@
+{% extends 'myapp/base.html' %}
+
+{% block myheader %}
+  <h1 class="display-6 mb-2">{{ product.title }}</h1>
+  <p class="lead text-body-secondary mb-0">Detailed specifications and downloadable resources.</p>
+{% endblock myheader %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100">
+        {% if product.picture %}
+          <img src="{{ product.picture.url }}" class="card-img-top" alt="{{ product.title }}" loading="lazy">
+        {% endif %}
+        <div class="card-body">
+          <h2 class="h5">Product overview</h2>
+          <dl class="row small mb-0">
+            <dt class="col-5 text-body-secondary">Price</dt>
+            <dd class="col-7 fw-semibold">{% if product.price %}{{ product.price }} ฿{% else %}N/A{% endif %}</dd>
+            <dt class="col-5 text-body-secondary">Quantity</dt>
+            <dd class="col-7">{{ product.quantity|default:0 }}</dd>
+            <dt class="col-5 text-body-secondary">Stock</dt>
+            <dd class="col-7">
+              {% if product.instock %}
+                <span class="badge text-bg-success">In stock</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Out of stock</span>
+              {% endif %}
+            </dd>
+          </dl>
+          {% if product.description %}
+            <hr>
+            <p class="mb-0">{{ product.description }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Product documentation</h2>
+          {% if product.specfile %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ product.specfile.url }}" download>Download PDF</a>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          {% if product.specfile %}
+            <div class="ratio ratio-4x3">
+              <iframe src="{{ product.specfile.url }}" title="{{ product.title }} specification" allowfullscreen></iframe>
+            </div>
+            <p class="small text-body-secondary mt-3 mb-0">If the PDF does not display, use the download button above.</p>
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              This product does not have a specification file yet.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

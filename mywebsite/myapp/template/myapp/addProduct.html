@@ -5,10 +5,42 @@
 {% endblock myheader %}
 
 {% block content %}
+  {% if success %}
+    <div class="modal fade" id="productSuccessModal" tabindex="-1" aria-labelledby="productSuccessLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h1 class="modal-title fs-5" id="productSuccessLabel">Product added</h1>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">The product was saved successfully.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Great!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('add-product-form');
+        if (form) {
+          form.reset();
+        }
+        var modalElement = document.getElementById('productSuccessModal');
+        if (modalElement && window.bootstrap) {
+          var modal = new bootstrap.Modal(modalElement);
+          modal.show();
+        }
+      });
+    </script>
+  {% endif %}
+
   {% if message %}
     <h3>{{ message }}</h3>
   {% else %}
-    <form method="POST" enctype="multipart/form-data">
+    <form id="add-product-form" method="POST" enctype="multipart/form-data">
       {% csrf_token %} <!-- Cross-site request forgery -->
       
       <div class="form-group">

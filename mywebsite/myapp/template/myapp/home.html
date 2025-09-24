@@ -29,7 +29,11 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ c.title }}</h5>
                             <p class="card-text">{{ c.price }} ฿</p>
-                            <a href="#" class="btn btn-primary">more detail</a>
+                            {% if c.specfile %}
+                                <a href="{% url 'product-detail' c.id %}" class="btn btn-primary">More detail</a>
+                            {% else %}
+                                <button type="button" class="btn btn-outline-secondary" disabled>More detail</button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
