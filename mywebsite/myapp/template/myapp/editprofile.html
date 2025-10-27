@@ -1,42 +1,73 @@
 {% extends 'myapp/base.html' %}
 
-{% block myheader %}
-<h1> Edit Profile </h1>
-{% endblock myheader %}
+{% block myheader %}{% endblock myheader %}
 
 {% block content %}
-    <form method="POST" action="">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" class="form-control" id="username" name="username"
-                   value="{{ profile.user.username }}" required>
-        </div>
+<script src="https://cdn.tailwindcss.com"></script>
 
-        <div class="form-group">
-            <label for="firstname">Firstname:</label>
-            <input type="text" class="form-control" id="firstname" name="firstname"
-                   value="{{ profile.user.first_name }}" required>
+<section class="bg-gray-50 dark:bg-gray-900">
+  <div class="py-8 px-4 mx-auto max-w-4xl lg:py-16">
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-10">
+        <h1 class="text-3xl font-semibold text-white">Edit profile</h1>
+        <p class="mt-2 text-sm text-blue-100">
+          Keep your account details up to date so we can tailor the experience for you.
+        </p>
+      </div>
+      <div class="px-8 py-10">
+        {% if message %}
+        <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-500/50 dark:bg-blue-900/30 dark:text-blue-100">
+          {{ message }}
         </div>
+        {% endif %}
 
-        <div class="form-group">
-            <label for="lastname">Lastname:</label>
-            <input type="text" class="form-control" id="lastname" name="lastname"
-                   value="{{ profile.user.last_name }}" required>
-        </div>
+        <form method="post" action="" class="space-y-8">
+          {% csrf_token %}
+          <div class="grid md:grid-cols-2 md:gap-6">
+            <div class="relative z-0 w-full group">
+              <input type="text" name="username" id="username" value="{{ profile.user.username }}" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+              <label for="username" class="absolute top-3 -z-10 origin-[0] transform text-xs font-semibold uppercase tracking-widest text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-[&:not(:placeholder-shown)]:start-0 peer-[&:not(:placeholder-shown)]:-translate-y-6 peer-[&:not(:placeholder-shown)]:scale-75 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-500">Username</label>
+            </div>
+            <div class="relative z-0 w-full group">
+              <input type="email" name="email" id="email" value="{{ profile.user.email }}" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+              <label for="email" class="absolute top-3 -z-10 origin-[0] transform text-xs font-semibold uppercase tracking-widest text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-[&:not(:placeholder-shown)]:start-0 peer-[&:not(:placeholder-shown)]:-translate-y-6 peer-[&:not(:placeholder-shown)]:scale-75 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-500">Email</label>
+            </div>
+          </div>
 
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" name="email"
-                   value="{{ profile.user.email }}" required>
-        </div>
+          <div class="grid md:grid-cols-2 md:gap-6">
+            <div class="relative z-0 w-full group">
+              <input type="text" name="firstname" id="firstname" value="{{ profile.user.first_name }}" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " />
+              <label for="firstname" class="absolute top-3 -z-10 origin-[0] transform text-xs font-semibold uppercase tracking-widest text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-[&:not(:placeholder-shown)]:start-0 peer-[&:not(:placeholder-shown)]:-translate-y-6 peer-[&:not(:placeholder-shown)]:scale-75 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-500">First name</label>
+            </div>
+            <div class="relative z-0 w-full group">
+              <input type="text" name="lastname" id="lastname" value="{{ profile.user.last_name }}" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " />
+              <label for="lastname" class="absolute top-3 -z-10 origin-[0] transform text-xs font-semibold uppercase tracking-widest text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-[&:not(:placeholder-shown)]:start-0 peer-[&:not(:placeholder-shown)]:-translate-y-6 peer-[&:not(:placeholder-shown)]:scale-75 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-500">Last name</label>
+            </div>
+          </div>
 
-        <div class="form-group">
-            <label for="password">New-Password:</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
+          <div class="relative z-0 w-full group">
+            <input type="password" name="password" id="password" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " />
+            <label for="password" class="absolute top-3 -z-10 origin-[0] transform text-xs font-semibold uppercase tracking-widest text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-[&:not(:placeholder-shown)]:start-0 peer-[&:not(:placeholder-shown)]:-translate-y-6 peer-[&:not(:placeholder-shown)]:scale-75 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-500">New password (leave blank to keep current)</label>
+          </div>
 
-        <button type="submit" class="btn btn-primary">Edit Profile</button>
-    </form>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Your password must be at least 8 characters if you decide to set a new one.
+            </p>
+            <div class="flex gap-3">
+              <a href="{% url 'profile-page' %}"
+                 class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                Cancel
+              </a>
+              <button type="submit"
+                      class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
+                Save changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock content %}

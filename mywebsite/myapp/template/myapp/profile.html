@@ -1,28 +1,54 @@
 {% extends 'myapp/base.html' %}
 
-{% block myheader %}
-<h1> My Profile </h1>
-{% endblock myheader %}
+{% block myheader %}{% endblock myheader %}
 
 {% block content %}
-    <div class="form-group">
-        Username: {{ profile.user.username }}
-    </div>
-    <div class="form-group">
-        Firstname: {{ profile.user.first_name }}
-    </div>
-    <div class="form-group">
-        Lastname: {{ profile.user.last_name }}
-    </div>
-    <div class="form-group">
-        Email: {{ profile.user.email }}
-    </div>
-    <div class="form-group">
-        Point: {{ profile.point }}
-    </div>
-    <div class="form-group">
-        Type: {{ profile.usertype }}
-    </div>
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <p><a href="{% url 'editprofile-page' %}">Edit Profile</a></p>
+<section class="bg-gray-50 dark:bg-gray-900">
+  <div class="py-8 px-4 mx-auto max-w-4xl lg:py-16">
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-10">
+        <h1 class="text-3xl font-semibold text-white">My Profile</h1>
+        <p class="mt-2 text-sm text-blue-100">
+          Welcome back, {{ profile.user.first_name|default:profile.user.username }}.
+        </p>
+      </div>
+      <div class="px-8 py-10 grid gap-6 sm:grid-cols-2">
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">Username</span>
+          <p class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ profile.user.username }}</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">Email</span>
+          <p class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ profile.user.email|default:"—" }}</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">First name</span>
+          <p class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ profile.user.first_name|default:"—" }}</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">Last name</span>
+          <p class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ profile.user.last_name|default:"—" }}</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">User type</span>
+          <p class="inline-flex items-center gap-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ profile.usertype|capfirst }}
+          </p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">Points</span>
+          <p class="text-lg font-semibold text-blue-600 dark:text-blue-400">{{ profile.point }}</p>
+        </div>
+      </div>
+      <div class="px-8 py-6 bg-gray-100 dark:bg-gray-900/60 text-right">
+        <a href="{% url 'editprofile-page' %}"
+           class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
+          Edit profile
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock content %}

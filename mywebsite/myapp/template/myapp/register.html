@@ -1,47 +1,74 @@
 {% extends 'myapp/base.html' %}
 
-{% block myheader %}
-    <h1>User Register</h1>
-{% endblock myheader %}
+{% block myheader %}{% endblock myheader %}
 
 {% block content %}
-    {% if message %}
-        <h3>{{ message }}</h3>
-    {% else %}
-        <form method="POST" action="">
-            {% csrf_token %} <!-- Cross-site request forgery -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-            <div class="form-group">
-                <label for="firstname">Firstname:</label>
-                <input type="text" class="form-control" id="firstname" name="firstname" required>
-            </div>
+<section class="bg-gray-50 dark:bg-gray-900">
+  <div class="py-8 px-4 mx-auto max-w-4xl lg:py-16">
+    <div class="mx-auto max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 sm:p-12">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">Create your account</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Join our community and keep your profile up to date.</p>
 
-            <div class="form-group">
-                <label for="lastname">Lastname:</label>
-                <input type="text" class="form-control" id="lastname" name="lastname" required>
-            </div>
+      {% if message %}
+      <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-400 dark:bg-red-900/40 dark:text-red-50">
+        {{ message }}
+      </div>
+      {% endif %}
 
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
+      <form method="post" action="" class="space-y-8">
+        {% csrf_token %}
 
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
+        <div class="grid md:grid-cols-2 md:gap-6">
+          <div class="relative z-0 w-full group">
+            <input type="text" name="firstname" id="firstname" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="firstname" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">First name</label>
+          </div>
+          <div class="relative z-0 w-full group">
+            <input type="text" name="lastname" id="lastname" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="lastname" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Last name</label>
+          </div>
+        </div>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
+        <div class="grid md:grid-cols-2 md:gap-6">
+          <div class="relative z-0 w-full group">
+            <input type="text" name="username" id="username" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="username" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Username</label>
+          </div>
+          <div class="relative z-0 w-full group">
+            <input type="email" name="email" id="email" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="email" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Email address</label>
+          </div>
+        </div>
 
-            <div class="form-group">
-                <label for="repassword">Re-Password:</label>
-                <input type="password" class="form-control" id="repassword" name="repassword" required>
-            </div>
+        <div class="grid md:grid-cols-2 md:gap-6">
+          <div class="relative z-0 w-full group">
+            <input type="password" name="password" id="password" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="password" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Password</label>
+          </div>
+          <div class="relative z-0 w-full group">
+            <input type="password" name="repassword" id="repassword" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="repassword" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Confirm password</label>
+          </div>
+        </div>
 
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
-    {% endif %}
+        <div class="grid md:grid-cols-2 md:gap-6">
+          <div class="relative z-0 w-full group">
+            <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " />
+            <label for="phone" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Phone number (123-456-7890)</label>
+          </div>
+          <div class="relative z-0 w-full group">
+            <input type="number" name="age" id="age" min="1" max="120" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
+            <label for="age" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Age</label>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full sm:w-auto rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
 {% endblock content %}

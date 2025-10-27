@@ -179,7 +179,8 @@ def userProfile(request: HttpRequest) -> HttpResponse:
 
 @login_required(login_url="/login")
 def editProfile(request: HttpRequest) -> HttpResponse:
-    context: Dict[str, Any] = {}
+    profile = get_object_or_404(Profile, user=request.user)
+    context: Dict[str, Any] = {"profile": profile}
 
     if request.method == "POST":
         data = request.POST.copy()
@@ -211,6 +212,7 @@ def editProfile(request: HttpRequest) -> HttpResponse:
                     login(request, refreshed)
 
             context["message"] = "Profile updated successfully."
+            context["profile"] = get_object_or_404(Profile, user=user)
 
     return render(request, "myapp/editprofile.html", context)
 
