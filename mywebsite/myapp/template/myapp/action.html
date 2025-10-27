@@ -1,31 +1,61 @@
 {% extends 'myapp/base.html' %}
 
-{% block myheader %}
-<h1> Action detail </h1>
-{% endblock myheader %}
+{% block myheader %}{% endblock myheader %}
 
 {% block content %}
-    <div class="container">
-        <h3>Topic: {{ contact.topic }}</h3><br>
-        <p>
-            Email: {{ contact.email }}<br>
-            Detail: {{ contact.detail }}<br>
-            <hr>
-        </p>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<section class="bg-gradient-to-br from-slate-100 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900">
+  <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <div class="mb-8 flex flex-col gap-3">
+      <a href="{% url 'showcontact-page' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19 8 12l7-7" />
+        </svg>
+        Back to inbox
+      </a>
+      <span class="inline-flex items-center gap-2 w-fit rounded-full bg-blue-600/10 px-4 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
+        Contact detail
+      </span>
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+        {{ contact.topic }}
+      </h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Received from <a href="mailto:{{ contact.email }}" class="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">{{ contact.email }}</a></p>
     </div>
 
-    <!-- CRUD Form -->
-    <form method="POST" action="">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="actiondetail">Action Detail:</label>
-            <textarea class="form-control" rows="5" id="actiondetail" name="actiondetail">
-                {{ action.actionDetail }}
-            </textarea>
+    <div class="grid gap-8 lg:grid-cols-2">
+      <div class="flex flex-col gap-6 rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Message</h2>
+          <p class="mt-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">{{ contact.detail }}</p>
         </div>
+        <div class="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-900/40 dark:bg-blue-900/30 dark:text-blue-200">
+          Keep notes of your follow-up actions. Mark the contact complete when resolved.
+        </div>
+      </div>
 
-        <button type="submit" class="btn btn-primary" name="save">Save</button>
-        <button type="submit" class="btn btn-danger" name="delete">Delete</button>
-        <button type="submit" class="btn btn-success" name="complete">Complete</button>
-    </form>
+      <div class="rounded-3xl border border-white/60 bg-white/95 p-6 shadow-2xl shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
+        <form method="post" action="" class="space-y-6">
+          {% csrf_token %}
+          <div class="space-y-2">
+            <label for="actiondetail" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Action detail</label>
+            <textarea id="actiondetail" name="actiondetail" rows="6" class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="Document your response or follow-up steps...">{{ action.actionDetail }}</textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button type="submit" name="save" class="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700">
+              Save
+            </button>
+            <button type="submit" name="complete" class="inline-flex items-center rounded-xl border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/50 dark:bg-emerald-900/40 dark:text-emerald-200">
+              Mark complete
+            </button>
+            <button type="submit" name="delete" class="inline-flex items-center rounded-xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100 dark:border-red-500/40 dark:bg-red-900/30 dark:text-red-200">
+              Delete
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock content %}

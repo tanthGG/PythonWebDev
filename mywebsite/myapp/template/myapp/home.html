@@ -36,7 +36,7 @@
       {% endif %}
       <div class="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
         <a href="#packages" class="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
-          Browse Packages
+          Our tours programs
           <svg class="ms-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
           </svg>
@@ -127,21 +127,31 @@
   </div>
 </section>
 
-<section class="bg-slate-900">
-  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-    <div class="flex flex-col items-center justify-between gap-8 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-10 text-center text-white sm:flex-row sm:text-left">
-      <div>
-        <h3 class="text-2xl font-semibold">Need help choosing your ride?</h3>
-        <p class="mt-2 text-blue-100">
-          Our guides can match you with the right trail in minutes. Reach out and plan your next adventure.
-        </p>
+<section class="relative overflow-hidden">
+  <div class="absolute inset-x-0 top-0 -z-10 flex justify-center">
+    <div class="h-[260px] w-[80%] max-w-4xl rounded-full bg-blue-200/40 blur-3xl dark:bg-blue-500/20"></div>
+  </div>
+  <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
+    <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-white px-10 py-12 shadow-2xl shadow-blue-200/40 transition hover:shadow-blue-300/40 dark:border-blue-500/30 dark:bg-gray-900 dark:shadow-blue-900/30">
+      <div class="absolute -left-24 top-1/2 hidden h-40 w-40 -translate-y-1/2 rounded-full bg-blue-500/30 blur-3xl md:block"></div>
+      <div class="absolute -right-20 top-1/2 hidden h-36 w-36 -translate-y-1/2 rounded-full bg-purple-500/30 blur-3xl md:block"></div>
+      <div class="relative flex flex-col items-center justify-between gap-8 text-center text-gray-900 dark:text-white sm:flex-row sm:text-left">
+        <div class="space-y-3 max-w-2xl">
+          <span class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">
+            Need a hand?
+          </span>
+          <h3 class="text-3xl font-bold">Need help choosing your ride?</h3>
+          <p class="text-base text-gray-600 dark:text-gray-300">
+            Our guides can match you with the right trail in minutes. Reach out and plan your next adventure before slots fill up.
+          </p>
+        </div>
+        <a href="{% url 'contact-page' %}" class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/40 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-700">
+          Get in touch
+          <svg class="ms-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
+          </svg>
+        </a>
       </div>
-      <a href="{% url 'contact-page' %}" class="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-blue-700 shadow-lg shadow-white/30 transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-white/50">
-        Get in touch
-        <svg class="ms-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
-        </svg>
-      </a>
     </div>
   </div>
 </section>

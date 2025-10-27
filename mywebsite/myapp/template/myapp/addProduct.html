@@ -1,120 +1,105 @@
 {% extends 'myapp/base.html' %}
 
-{% block myheader %}
-<h1> Add Product </h1>
-{% endblock myheader %}
+{% block myheader %}{% endblock myheader %}
 
 {% block content %}
-  {% if success %}
-    <div class="modal fade" id="productSuccessModal" tabindex="-1" aria-labelledby="productSuccessLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-success text-white">
-            <h1 class="modal-title fs-5" id="productSuccessLabel">Product added</h1>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p class="mb-0">The product was saved successfully.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Great!</button>
-          </div>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<section class="bg-gradient-to-br from-sky-100 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900">
+  <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <div class="mb-10 flex flex-col gap-4 text-center">
+      <span class="mx-auto inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
+        Admin dashboard
+      </span>
+      <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Add a new adventure</h1>
+      <p class="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-300">
+        Create a fresh ATV package, upload hero media, and highlight what makes this ride special. All fields are required unless noted.
+      </p>
+    </div>
+
+    <div class="overflow-hidden rounded-3xl border border-white/60 bg-white/90 shadow-2xl shadow-blue-200/40 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
+      <div class="border-b border-blue-100 bg-blue-50 px-6 py-5 dark:border-blue-900/40 dark:bg-blue-900/30">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Package details</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Fill out the product information and publish when you are ready.</p>
+      </div>
+      <div class="px-6 py-6">
+        {% if message %}
+        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-900/30 dark:text-red-200">
+          {{ message }}
         </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-900/30 dark:text-emerald-200">
+          The product was saved successfully.
+        </div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('add-product-form');
+            if (form) {
+              form.reset();
+              const quantity = form.querySelector('#quantity');
+              if (quantity) quantity.value = '0';
+              const instock = form.querySelector('#instock');
+              if (instock) instock.checked = false;
+            }
+          });
+        </script>
+        {% endif %}
+
+        <form id="add-product-form" method="post" enctype="multipart/form-data" class="space-y-8">
+          {% csrf_token %}
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="space-y-2">
+              <label for="title" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Title</label>
+              <input type="text" id="title" name="title" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="Sunset Jungle Trek" required />
+            </div>
+            <div class="space-y-2">
+              <label for="price" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Price (THB)</label>
+              <input type="number" step="0.01" min="0" id="price" name="price" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="2499" required />
+            </div>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="space-y-2">
+              <label for="quantity" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Available slots</label>
+              <input type="number" min="0" id="quantity" name="quantity" value="0" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" required />
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+              <input type="checkbox" id="instock" name="instock" value="yes" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-blue-500" />
+              <label for="instock" class="text-sm font-medium text-gray-700 dark:text-gray-200">Show as available for booking</label>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="description" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Description</label>
+            <textarea id="description" name="description" rows="5" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="Describe the trail, duration, highlights, and what riders should expect." required></textarea>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="space-y-2">
+              <label for="picture" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Feature image</label>
+              <input type="file" id="picture" name="picture" accept="image/*" class="block w-full cursor-pointer rounded-xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300" />
+              <p class="text-xs text-gray-500 dark:text-gray-400">Upload a high-resolution landscape photo. PNG or JPG up to 5 MB.</p>
+            </div>
+            <div class="space-y-2">
+              <label for="specfile" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Spec sheet (optional)</label>
+              <input type="file" id="specfile" name="specfile" class="block w-full cursor-pointer rounded-xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300" />
+              <p class="text-xs text-gray-500 dark:text-gray-400">Attach PDF/Doc for detailed itinerary or safety briefings.</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-3">
+            <a href="{% url 'home' %}" class="inline-flex items-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+              Cancel
+            </a>
+            <button type="submit" class="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700">
+              Publish adventure
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        var form = document.getElementById('add-product-form');
-        if (form) {
-          form.reset();
-        }
-
-        var modalElement = document.getElementById('productSuccessModal');
-        if (!modalElement) {
-          return;
-        }
-
-        if (window.bootstrap && window.bootstrap.Modal) {
-          var modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
-          modal.show();
-          return;
-        }
-
-        modalElement.classList.add('show');
-        modalElement.style.display = 'block';
-        modalElement.removeAttribute('aria-hidden');
-        modalElement.setAttribute('aria-modal', 'true');
-
-        var backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        document.body.appendChild(backdrop);
-
-        var closeModal = function () {
-          modalElement.classList.remove('show');
-          modalElement.style.display = 'none';
-          modalElement.setAttribute('aria-hidden', 'true');
-          modalElement.removeAttribute('aria-modal');
-          if (backdrop && backdrop.parentNode) {
-            backdrop.parentNode.removeChild(backdrop);
-          }
-        };
-
-        var closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
-        closeButtons.forEach(function (btn) {
-          btn.addEventListener('click', closeModal);
-        });
-
-        modalElement.addEventListener('click', function (event) {
-          if (event.target === modalElement) {
-            closeModal();
-          }
-        });
-      });
-    </script>
-  {% endif %}
-
-  {% if message %}
-    <h3>{{ message }}</h3>
-  {% else %}
-    <form id="add-product-form" method="POST" enctype="multipart/form-data">
-      {% csrf_token %} <!-- Cross-site request forgery -->
-      
-      <div class="form-group">
-        <label for="title">Title:</label>
-        <input type="text" class="form-control" id="title" name="title" required>
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description:</label>
-        <textarea class="form-control" rows="5" id="description" name="description" required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="price">Price:</label>
-        <input type="text" class="form-control" id="price" name="price" required>
-      </div>
-
-      <div class="form-group">
-        <label for="quantity">Quantity:</label>
-        <input type="text" class="form-control" id="quantity" name="quantity" value="0" required>
-      </div>
-
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="yes" id="instock" name="instock">
-        <label class="form-check-label" for="instock">Instock?</label>
-      </div>
-
-      <div class="mb-3">
-        <label for="picture" class="form-label">Picture:</label>
-        <input class="form-control" type="file" id="picture" name="picture">
-      </div>
-
-      <div class="mb-3">
-        <label for="specfile" class="form-label">Specfile:</label>
-        <input class="form-control" type="file" id="specfile" name="specfile">
-      </div>
-
-      <button type="submit" class="btn btn-primary">Add Product</button>
-    </form>
-  {% endif %}
+  </div>
+</section>
 {% endblock content %}

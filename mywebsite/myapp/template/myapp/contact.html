@@ -1,30 +1,136 @@
 {% extends 'myapp/base.html' %}
 
-{% block myheader %}
-<h1> Contact Us</h1>
-{% endblock myheader %}
+{% block myheader %}{% endblock myheader %}
 
 {% block content %}
-    {% if message %}
-    <h3>{{ message }}</h3>
-    {% else %}
-<form method="POST" action="">
-    {% csrf_token %}
-    <div>
-        <label for="topic">Topic:</label>
-        <input type="text" class="form-control" id="topic" name="topic">
-    </div>
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="text" class="form-control" id="email" name="email">
-    </div>
-    <div class="form-group">
-    <label for="detail">Detail:</label>
-    <textarea class="form-control" rows="5" id="detail" name="detail"></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">submit</button>
-</form>
+<script src="https://cdn.tailwindcss.com"></script>
 
-{% endif %}
+<section class="relative overflow-hidden bg-gradient-to-br from-sky-100 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900">
+  <div class="absolute inset-x-0 top-0 flex justify-center">
+    <div class="h-72 w-[85%] max-w-5xl rounded-full bg-blue-200/50 blur-3xl dark:bg-blue-500/20"></div>
+  </div>
+  <div class="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-16 sm:px-6 lg:flex-row lg:items-start lg:gap-16 lg:px-8 lg:py-24">
+    <div class="w-full max-w-lg space-y-8">
+      <span class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
+        We are here for you
+      </span>
+      <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+        Contact ATV Phuket
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        Reach out anytime and we will help plan the perfect ATV adventure for your group. Choose the channel that works best for you.
+      </p>
 
+      <div class="grid gap-4">
+        <div class="flex items-center gap-4 rounded-2xl border border-white/60 bg-white/80 p-5 shadow-lg shadow-blue-100/50 backdrop-blur dark:border-white/10 dark:bg-gray-900/70 dark:shadow-blue-900/30">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 5.25A2.25 2.25 0 0 1 5.25 3h1.5A2.25 2.25 0 0 1 9 5.25V6A2.25 2.25 0 0 1 6.75 8.25H6A3 3 0 0 0 3 11v.75c0 4.463 3.737 8.1 8.2 7.996a7.5 7.5 0 0 0 7.8-7.5V11a3 3 0 0 0-3-3h-.75A2.25 2.25 0 0 1 13 5.75V5.25A2.25 2.25 0 0 1 15.25 3h1.5A2.25 2.25 0 0 1 19 5.25v.5" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Phone</p>
+            <div class="mt-2 flex flex-col gap-1 text-lg font-semibold">
+              <a href="tel:+66898740055" class="text-gray-900 transition hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                +66 89 874 0055
+              </a>
+              <a href="tel:+66898740066" class="text-gray-900 transition hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                +66 89 874 0066
+              </a>
+              <a href="tel:+66898740088" class="text-gray-900 transition hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                +66 89 874 0088
+              </a>
+            </div>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Daily 09:00–18:00 (ICT)</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 rounded-2xl border border-white/60 bg-white/80 p-5 shadow-lg shadow-blue-100/50 backdrop-blur dark:border-white/10 dark:bg-gray-900/70 dark:shadow-blue-900/30">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M21 5.992v8.016c0 .86-.698 1.558-1.558 1.558H8.884a.78.78 0 0 0-.55.228l-2.963 2.963a.519.519 0 0 1-.886-.367v-1.845a.778.778 0 0 0-.778-.777H3.558A1.558 1.558 0 0 1 2 14.008V5.992C2 5.132 2.698 4.434 3.558 4.434h15.884C20.302 4.434 21 5.132 21 5.992Z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">WhatsApp</p>
+            <div class="mt-2 flex flex-col gap-1">
+              <a href="https://wa.me/66898740055" target="_blank" rel="noopener" class="text-lg font-semibold text-gray-900 transition hover:text-emerald-500 dark:text-white dark:hover:text-emerald-300">
+                +66 89 874 0055
+              </a>
+              <a href="https://wa.me/66898740055" target="_blank" rel="noopener" class="text-lg font-semibold text-gray-900 transition hover:text-emerald-500 dark:text-white dark:hover:text-emerald-300">
+                +66 89 874 0088
+              </a>
+            </div>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Instant chat &amp; tour updates</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 rounded-2xl border border-white/60 bg-white/80 p-5 shadow-lg shadow-blue-100/50 backdrop-blur dark:border-white/10 dark:bg-gray-900/70 dark:shadow-blue-900/30">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M22.676 0H1.326A1.326 1.326 0 0 0 0 1.326v21.348A1.326 1.326 0 0 0 1.326 24h11.499v-9.294H9.691V11.03h3.134V8.36c0-3.1 1.893-4.788 4.658-4.788 1.325 0 2.464.099 2.797.143v3.24l-1.92.001c-1.504 0-1.796.715-1.796 1.765v2.313h3.587l-.467 3.676h-3.12V24h6.116A1.326 1.326 0 0 0 24 22.674V1.326A1.326 1.326 0 0 0 22.676 0" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Facebook</p>
+            <a href="https://www.facebook.com/phuketatv" target="_blank" rel="noopener" class="text-lg font-semibold text-gray-900 transition hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+              @ATVPhuket
+            </a>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Follow updates &amp; photo galleries</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 rounded-2xl border border-white/60 bg-white/80 p-5 shadow-lg shadow-blue-100/50 backdrop-blur dark:border-white/10 dark:bg-gray-900/70 dark:shadow-blue-900/30">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="m4 6 6.196 5.167a2.25 2.25 0 0 0 3.608 0L20 6M5 19h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1Z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Email</p>
+            <a href="mailto:mail@atvphuket.com" class="text-lg font-semibold text-gray-900 transition hover:text-indigo-500 dark:text-white dark:hover:text-indigo-300">mail@atvphuket.com</a>
+            <p class="text-sm text-gray-500 dark:text-gray-400">We reply within 1 business day</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full max-w-xl">
+      <div class="overflow-hidden rounded-3xl border border-white/60 bg-white/90 shadow-2xl shadow-blue-200/40 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
+        <div class="border-b border-blue-100 bg-blue-50 px-6 py-5 dark:border-blue-900/40 dark:bg-blue-900/30">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Send us a message</h2>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Let us know your preferred dates, group size, or any special requests.</p>
+        </div>
+        <div class="px-6 py-6">
+          {% if message %}
+            <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-500/40 dark:bg-blue-900/30 dark:text-blue-200">
+              {{ message }}
+            </div>
+          {% endif %}
+          <form method="post" action="" class="space-y-6">
+            {% csrf_token %}
+            <div>
+              <label for="topic" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Topic</label>
+              <input type="text" id="topic" name="topic" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="I’d like to book a sunset tour" required />
+            </div>
+
+            <div>
+              <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+              <input type="email" id="email" name="email" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="you@example.com" required />
+            </div>
+
+            <div>
+              <label for="detail" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">How can we help?</label>
+              <textarea id="detail" name="detail" rows="4" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-800" placeholder="Share your ideal date, number of riders, and any questions." required></textarea>
+            </div>
+
+            <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700">
+              Send message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock content %}
