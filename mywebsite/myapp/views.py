@@ -117,6 +117,43 @@ def contact(request: HttpRequest) -> HttpResponse:
     return render(request, "myapp/contact.html", context)
 
 
+def booking(request: HttpRequest) -> HttpResponse:
+    context: Dict[str, Any] = {}
+
+    if request.method == "POST":
+        data = request.POST.copy()
+        full_name = data.get("full_name", "").strip()
+        email = data.get("email", "").strip()
+        phone = data.get("phone", "").strip()
+        riders = data.get("riders", "").strip()
+        date = data.get("ride_date", "").strip()
+        time = data.get("ride_time", "").strip()
+        package = data.get("package", "").strip()
+        notes = data.get("notes", "").strip()
+
+        required_fields = [full_name, email, phone, riders, date, package]
+        if any(not field for field in required_fields):
+            context["message"] = "Please complete all required booking details."
+        else:
+            detail_lines = [
+                f"Name: {full_name}",
+                f"Phone: {phone}",
+                f"Riders: {riders}",
+                f"Preferred date: {date}",
+                f"Preferred time: {time or 'Not specified'}",
+                f"Package: {package}",
+                f"Notes: {notes or 'None provided'}",
+            ]
+            contactList.objects.create(
+                topic=f"Booking request - {package}",
+                email=email,
+                detail="\n".join(detail_lines),
+            )
+            context["success"] = True
+
+    return render(request, "myapp/booking.html", context)
+
+
 def userLogin(request: HttpRequest) -> HttpResponse:
     context: Dict[str, Any] = {}
 
@@ -135,8 +172,20 @@ def userLogin(request: HttpRequest) -> HttpResponse:
 
 @login_required(login_url="/login")
 def showContact(request: HttpRequest) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse("Forbidden", status=403)
+
     contacts = contactList.objects.all()
     return render(request, "myapp/showcontact.html", {"contact": contacts})
+
+
+@login_required(login_url="/login")
+def showBookings(request: HttpRequest) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse("Forbidden", status=403)
+
+    bookings = contactList.objects.filter(topic__startswith="Booking request").order_by("-id")
+    return render(request, "myapp/booking_list.html", {"bookings": bookings})
 
 
 def userRegist(request: HttpRequest) -> HttpResponse:
@@ -219,6 +268,9 @@ def editProfile(request: HttpRequest) -> HttpResponse:
 
 @login_required(login_url="/login")
 def actionPage(request: HttpRequest, cid: int) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse("Forbidden", status=403)
+
     contact = get_object_or_404(contactList, id=cid)
     context: Dict[str, Any] = {"contact": contact}
 
@@ -253,7 +305,11 @@ def actionPage(request: HttpRequest, cid: int) -> HttpResponse:
     return render(request, "myapp/action.html", context)
 
 
+@login_required(login_url="/login")
 def addProduct(request: HttpRequest) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse("Forbidden", status=403)
+
     context: Dict[str, Any] = {}
 
     if request.method == "POST":
@@ -354,6 +410,9 @@ class UserDetailAjax(View):
     http_method_names = ["get"]
 
     def get(self, request: HttpRequest) -> JsonResponse:  # type: ignore[override]
+        if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+            return JsonResponse({"error": "Forbidden"}, status=403)
+
         user_id = request.GET.get("id")
         if not user_id:
             return JsonResponse({"error": "Missing user id"}, status=400)
@@ -366,6 +425,9 @@ class CreateUserAjax(View):
     http_method_names = ["get", "post"]
 
     def _handle(self, request: HttpRequest) -> JsonResponse:
+        if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+            return JsonResponse({"error": "Forbidden"}, status=403)
+
         data = _extract_data(request)
 
         username = data.get("username")
@@ -418,6 +480,9 @@ class UpdateUserAjax(View):
     http_method_names = ["get", "post"]
 
     def _handle(self, request: HttpRequest) -> JsonResponse:
+        if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+            return JsonResponse({"error": "Forbidden"}, status=403)
+
         data = _extract_data(request)
         user_id = data.get("id")
         if not user_id:
@@ -480,6 +545,9 @@ class DeleteUserAjax(View):
     http_method_names = ["get", "post", "delete"]
 
     def _handle(self, request: HttpRequest) -> JsonResponse:
+        if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+            return JsonResponse({"error": "Forbidden"}, status=403)
+
         data = _extract_data(request)
         user_id = data.get("id")
         if not user_id:

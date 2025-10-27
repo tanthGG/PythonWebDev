@@ -1,0 +1,93 @@
+{% extends 'myapp/base.html' %}
+
+{% block myheader %}{% endblock myheader %}
+
+{% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<section class="bg-gradient-to-br from-slate-100 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div class="max-w-2xl space-y-3">
+        <span class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
+          Admin dashboard
+        </span>
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Booking requests</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          Review recent tour booking requests, follow up with riders, and close the loop once confirmed.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 self-start rounded-2xl border border-blue-100 bg-white px-5 py-4 text-sm font-medium text-blue-700 shadow-lg shadow-blue-200/40 dark:border-blue-500/30 dark:bg-gray-900 dark:text-blue-200 dark:shadow-blue-900/30">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25v13.5A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75Z" />
+        </svg>
+        {{ bookings|length }} pending requests
+      </div>
+    </div>
+
+    <div class="mt-10 overflow-hidden rounded-3xl border border-white/60 bg-white/90 shadow-2xl shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm text-gray-700 dark:divide-gray-800 dark:text-gray-200">
+          <thead class="bg-blue-50/80 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            <tr>
+              <th scope="col" class="px-6 py-3">Date</th>
+              <th scope="col" class="px-6 py-3">Rider</th>
+              <th scope="col" class="px-6 py-3">Contact</th>
+              <th scope="col" class="px-6 py-3">Package</th>
+              <th scope="col" class="px-6 py-3">Details</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 bg-white dark:divide-gray-800 dark:bg-gray-900">
+            {% for booking in bookings %}
+            {% with lines=booking.detail|linebreaksbr %}
+            <tr class="align-top transition hover:bg-blue-50/70 dark:hover:bg-gray-800">
+              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                {{ booking.created_at|default:booking.id }}
+              </td>
+              <td class="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+                {{ booking.detail.splitlines.0|default:"Name: Unknown" }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                <a href="mailto:{{ booking.email }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                  {{ booking.email }}
+                </a>
+                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {% for line in booking.detail.splitlines %}
+                  {% if "Phone" in line %}
+                  {{ line }}
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                {% for line in booking.detail.splitlines %}
+                  {% if "Package" in line %}
+                    {{ line|cut:"Package: " }}
+                  {% endif %}
+                {% endfor %}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                <div class="space-y-1">
+                  {% for line in booking.detail.splitlines %}
+                    {% if "Name" not in line and "Phone" not in line and "Package" not in line %}
+                    <div>{{ line }}</div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+            {% endwith %}
+            {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                No booking requests yet. Share your booking page to start collecting reservations.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
