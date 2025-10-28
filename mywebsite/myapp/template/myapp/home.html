@@ -66,64 +66,61 @@
         </p>
       </div>
       <div class="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 dark:bg-blue-900/40 dark:text-blue-200">
-        {{ allproduct.paginator.count }} adventures available
+        {{ program_count }} adventures available
       </div>
     </div>
 
+    {% if program_cards %}
     <div class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-      {% for row in allrow %}
-        {% for c in row %}
-        <article class="group flex flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-900">
-          <div class="relative overflow-hidden bg-gray-100 dark:bg-gray-800">
-            {% if c.picture %}
-            <img src="{{ c.picture.url }}" alt="{{ c.title }}" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-            {% else %}
-            <div class="flex h-56 w-full items-center justify-center text-gray-400">No image available</div>
+      {% for card in program_cards %}
+      <article class="group flex flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-900">
+        <div class="relative overflow-hidden bg-gray-100 dark:bg-gray-800">
+          <img src="{% static 'image/atv.png' %}" alt="{{ card.program.name }}" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105">
+          <span class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 shadow dark:bg-emerald-900/40 dark:text-emerald-200">
+            <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+            Available
+          </span>
+        </div>
+        <div class="flex flex-1 flex-col gap-4 px-6 py-6">
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900 transition group-hover:text-blue-600 dark:text-white">{{ card.program.name }}</h3>
+            {% if card.program.duration_minutes %}
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration: {{ card.program.duration_minutes }} minutes</p>
             {% endif %}
-            <div class="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-800 shadow dark:bg-gray-900/80 dark:text-gray-200">
-              <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
-              Available
-            </div>
+            <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ card.program.description|default:"Explore Phuket’s lush trails with an expert lead guide."|truncatewords:28 }}</p>
           </div>
-          <div class="flex flex-1 flex-col gap-4 px-6 py-6">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-900 transition group-hover:text-blue-600 dark:text-white">{{ c.title }}</h3>
-              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                {% if c.description %}{{ c.description|truncatechars:120 }}{% else %}Explore Phuket’s lush trails with an expert lead guide.{% endif %}
-              </p>
-            </div>
-            <div class="flex items-center justify-between">
+
+          <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+            <div class="grid gap-3 md:grid-cols-2">
               <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Starting from</p>
-                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ c.price|default:"N/A" }} ฿</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Rider</p>
+                <p class="mt-1 text-sm text-gray-700 dark:text-gray-200">Adult: <span class="font-semibold">{% if card.rider_adult %}{{ card.rider_adult|floatformat:0 }} THB{% else %}—{% endif %}</span></p>
+                <p class="text-sm text-gray-700 dark:text-gray-200">Child: <span class="font-semibold">{% if card.rider_child %}{{ card.rider_child|floatformat:0 }} THB{% else %}—{% endif %}</span></p>
               </div>
-              <div class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                {{ c.quantity|default:0 }} seats left
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Passenger</p>
+                <p class="mt-1 text-sm text-gray-700 dark:text-gray-200">Adult: <span class="font-semibold">{% if card.passenger_adult %}{{ card.passenger_adult|floatformat:0 }} THB{% else %}—{% endif %}</span></p>
+                <p class="text-sm text-gray-700 dark:text-gray-200">Child: <span class="font-semibold">{% if card.passenger_child %}{{ card.passenger_child|floatformat:0 }} THB{% else %}—{% endif %}</span></p>
               </div>
-            </div>
-            <div class="flex gap-3">
-              {% if c.specfile %}
-              <a href="{% url 'product-detail' c.id %}" class="flex-1 inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
-                View details
-              </a>
-              {% else %}
-              <button type="button" class="flex-1 inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-400" disabled>
-                Details unavailable
-              </button>
-              {% endif %}
-              <form method="get" action="{% url 'contact-page' %}">
-                <button type="submit" class="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-                  Book now
-                </button>
-              </form>
             </div>
           </div>
-        </article>
-        {% endfor %}
-      {% empty %}
-        <p class="col-span-full text-center text-gray-500 dark:text-gray-400">No adventures available right now. Check back soon!</p>
+
+          <div class="mt-auto flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Starting from</p>
+              <p class="text-2xl font-bold text-blue-600 dark:text-blue-300">{% if card.starting_price %}{{ card.starting_price|floatformat:0 }} THB{% else %}Contact us{% endif %}</p>
+            </div>
+            <a href="{% url 'booking-page' %}#packages" class="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700">
+              Book now
+            </a>
+          </div>
+        </div>
+      </article>
       {% endfor %}
     </div>
+    {% else %}
+    <p class="text-gray-500 dark:text-gray-400">New adventures are coming soon. In the meantime, <a href="{% url 'contact-page' %}" class="text-blue-600 dark:text-blue-400 underline">contact our team</a> for a custom ride.</p>
+    {% endif %}
   </div>
 </section>
 

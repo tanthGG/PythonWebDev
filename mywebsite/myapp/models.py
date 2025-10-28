@@ -1,5 +1,9 @@
 from django.db import models
+from decimal import Decimal
+
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -41,3 +45,102 @@ class Action(models.Model):
 
     def __str__(self):
         return self.contactList.topic
+
+class Program(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=100)
+    duration_minutes = models.PositiveIntegerField(default=60)
+    description = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
+    def get_rate(self, participant: "ProgramRate.Participant", age_group: "ProgramRate.AgeGroup") -> Decimal:
+        try:
+            rate = self.rates.get(participant_type=participant, age_group=age_group)
+        except ProgramRate.DoesNotExist as exc:
+            raise ValidationError(
+                f"No rate configured for program {self.code} ({participant}, {age_group})"
+            ) from exc
+        return rate.price
+
+
+class ProgramRate(models.Model):
+    class Participant(models.TextChoices):
+        RIDER = "rider", "Rider"
+        PASSENGER = "passenger", "Passenger"
+
+    class AgeGroup(models.TextChoices):
+        ADULT = "adult", "Adult"
+        CHILD = "child", "Child"
+
+    program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="rates")
+    participant_type = models.CharField(max_length=20, choices=Participant.choices)
+    age_group = models.CharField(max_length=20, choices=AgeGroup.choices)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
+    class Meta:
+        unique_together = ("program", "participant_type", "age_group")
+        ordering = ["program__code", "participant_type", "age_group"]
+
+    def __str__(self) -> str:
+        return f"{self.program.code} - {self.participant_type} ({self.age_group})"
+
+
+class Booking(models.Model):
+    class RideSlot(models.TextChoices):
+        MORNING = "morning", "Morning"
+        NOON = "noon", "Noon"
+        AFTERNOON = "afternoon", "Afternoon"
+
+    full_name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    ride_date = models.DateField()
+    ride_time = models.CharField(max_length=10, choices=RideSlot.choices, blank=True)
+    pickup_place = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def update_total(self) -> None:
+        total = self.items.aggregate(total=Sum("line_total"))['total'] or Decimal("0")
+        Booking.objects.filter(pk=self.pk).update(total_amount=total)
+        self.total_amount = total
+
+    def __str__(self):
+        return f"{self.full_name} – {self.ride_date}"
+
+
+class BookingItem(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="items")
+    program = models.ForeignKey(Program, on_delete=models.PROTECT, related_name="booking_items")
+    participant_type = models.CharField(max_length=20, choices=ProgramRate.Participant.choices)
+    age_group = models.CharField(max_length=20, choices=ProgramRate.AgeGroup.choices)
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=8, decimal_places=2)
+    line_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        ordering = ["booking_id", "id"]
+
+    def save(self, *args, **kwargs):
+        self.unit_price = self.program.get_rate(self.participant_type, self.age_group)
+        self.line_total = self.unit_price * Decimal(self.quantity)
+        super().save(*args, **kwargs)
+        self.booking.update_total()
+
+    def delete(self, *args, **kwargs):
+        booking = self.booking
+        super().delete(*args, **kwargs)
+        booking.update_total()
+
+    def __str__(self) -> str:
+        return f"{self.program.code} x {self.quantity} ({self.get_participant_type_display()} {self.get_age_group_display()})"

@@ -1,5 +1,4 @@
 {% extends 'myapp/base.html' %}
-
 {% block myheader %}{% endblock myheader %}
 
 {% block content %}
@@ -21,66 +20,106 @@
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25v13.5A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75Z" />
         </svg>
-        {{ bookings|length }} pending requests
+        {{ total_results }} result{{ total_results|pluralize }}
       </div>
     </div>
+
+    <form method="get" class="mt-10 flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/90 p-6 shadow-lg shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30 sm:flex-row sm:items-end sm:justify-between">
+      <div class="flex w-full flex-col gap-4 sm:flex-row sm:items-end">
+        <div class="w-full sm:w-64">
+          <label for="program" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Program</label>
+          <select id="program" name="program" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            <option value="">All programs</option>
+            {% for program in programs %}
+            <option value="{{ program.id }}" {% if selected_program == program.id|stringformat:'s' %}selected{% endif %}>{{ program.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="w-full sm:w-56">
+          <label for="ride_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ride date</label>
+          <input id="ride_date" name="ride_date" type="date" value="{{ selected_date }}" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="submit" class="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700">Apply filters</button>
+        {% if filter_query %}
+        <a href="{% url 'booking-list-page' %}" class="text-sm font-medium text-gray-600 underline-offset-4 hover:text-blue-600 hover:underline dark:text-gray-300 dark:hover:text-blue-300">Clear filters</a>
+        {% endif %}
+      </div>
+    </form>
 
     <div class="mt-10 overflow-hidden rounded-3xl border border-white/60 bg-white/90 shadow-2xl shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 text-sm text-gray-700 dark:divide-gray-800 dark:text-gray-200">
           <thead class="bg-blue-50/80 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:bg-gray-800 dark:text-gray-300">
             <tr>
-              <th scope="col" class="px-6 py-3">Date</th>
-              <th scope="col" class="px-6 py-3">Rider</th>
+              <th scope="col" class="px-6 py-3">Created</th>
+              <th scope="col" class="px-6 py-3">Customer</th>
               <th scope="col" class="px-6 py-3">Contact</th>
-              <th scope="col" class="px-6 py-3">Package</th>
-              <th scope="col" class="px-6 py-3">Details</th>
+              <th scope="col" class="px-6 py-3">Summary</th>
+              <th scope="col" class="px-6 py-3 text-right">Total</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 bg-white dark:divide-gray-800 dark:bg-gray-900">
             {% for booking in bookings %}
-            {% with lines=booking.detail|linebreaksbr %}
             <tr class="align-top transition hover:bg-blue-50/70 dark:hover:bg-gray-800">
-              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {{ booking.created_at|default:booking.id }}
-              </td>
+              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ booking.created_at|date:"Y-m-d H:i" }}</td>
               <td class="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">
-                {{ booking.detail.splitlines.0|default:"Name: Unknown" }}
+                {{ booking.full_name }}<br>
+                <span class="text-xs font-normal text-gray-500 dark:text-gray-400">Ride date: {{ booking.ride_date }}{% if booking.ride_time %} ({{ booking.get_ride_time_display }}){% endif %}</span>
               </td>
               <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                <a href="mailto:{{ booking.email }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
-                  {{ booking.email }}
-                </a>
-                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  {% for line in booking.detail.splitlines %}
-                  {% if "Phone" in line %}
-                  {{ line }}
-                  {% endif %}
-                  {% endfor %}
+                <div>
+                  <a href="mailto:{{ booking.email }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">{{ booking.email }}</a>
                 </div>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                {% for line in booking.detail.splitlines %}
-                  {% if "Package" in line %}
-                    {{ line|cut:"Package: " }}
-                  {% endif %}
-                {% endfor %}
+                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ booking.phone }}</div>
+                {% if booking.pickup_place %}
+                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">Pickup: {{ booking.pickup_place }}</div>
+                {% endif %}
               </td>
               <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                <div class="space-y-1">
-                  {% for line in booking.detail.splitlines %}
-                    {% if "Name" not in line and "Phone" not in line and "Package" not in line %}
-                    <div>{{ line }}</div>
-                    {% endif %}
-                  {% endfor %}
+                <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                  <table class="min-w-full divide-y divide-gray-200 text-xs dark:divide-gray-700">
+                    <thead class="bg-gray-50 text-gray-500 uppercase dark:bg-gray-800 dark:text-gray-300">
+                      <tr>
+                        <th class="px-3 py-2 text-left">Program</th>
+                        <th class="px-3 py-2 text-left">Type</th>
+                        <th class="px-3 py-2 text-left">Age</th>
+                        <th class="px-3 py-2 text-right">Qty</th>
+                        <th class="px-3 py-2 text-right">Unit</th>
+                        <th class="px-3 py-2 text-right">Line</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white dark:divide-gray-800 dark:bg-gray-900">
+                      {% for item in booking.items.all %}
+                      <tr>
+                        <td class="px-3 py-2 text-gray-900 dark:text-gray-100">{{ item.program.name }}</td>
+                        <td class="px-3 py-2 text-gray-700 dark:text-gray-300">{{ item.get_participant_type_display }}</td>
+                        <td class="px-3 py-2 text-gray-700 dark:text-gray-300">{{ item.get_age_group_display }}</td>
+                        <td class="px-3 py-2 text-right">{{ item.quantity }}</td>
+                        <td class="px-3 py-2 text-right">{{ item.unit_price|floatformat:0 }}</td>
+                        <td class="px-3 py-2 text-right font-semibold">{{ item.line_total|floatformat:0 }}</td>
+                      </tr>
+                      {% empty %}
+                      <tr><td colspan="6" class="px-3 py-3 text-center text-gray-500 dark:text-gray-400">No line items</td></tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                 </div>
+                {% if booking.notes %}
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Notes: {{ booking.notes }}</p>
+                {% endif %}
               </td>
+              <td class="px-6 py-4 text-sm font-semibold text-right text-gray-900 dark:text-white whitespace-nowrap">{{ booking.total_amount|floatformat:0 }} THB</td>
             </tr>
-            {% endwith %}
             {% empty %}
             <tr>
               <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                {% if filter_query %}
+                No booking matches your filters. Try adjusting the date or program.
+                {% else %}
                 No booking requests yet. Share your booking page to start collecting reservations.
+                {% endif %}
               </td>
             </tr>
             {% endfor %}
@@ -88,6 +127,45 @@
         </table>
       </div>
     </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="mt-6 flex items-center justify-between border-t border-gray-200 bg-white/80 px-4 py-3 text-sm text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300 sm:rounded-3xl sm:px-6">
+      <div class="hidden sm:block">
+        <p>Showing <span class="font-semibold text-gray-900 dark:text-white">{{ page_obj.start_index }}</span> to <span class="font-semibold text-gray-900 dark:text-white">{{ page_obj.end_index }}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ paginator.count }}</span> results</p>
+      </div>
+      <div class="flex flex-1 justify-between sm:justify-end">
+        {% if page_obj.has_previous %}
+        {% with prev_url=page_obj.previous_page_number %}
+        <a href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ prev_url }}" class="relative inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium transition bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">
+          Previous
+        </a>
+        {% endwith %}
+        {% else %}
+        <span class="relative inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium cursor-not-allowed bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500">Previous</span>
+        {% endif %}
+        <nav aria-label="Pagination" class="ml-2 inline-flex -space-x-px rounded-md shadow-xs">
+          {% for number in page_range %}
+            {% if number == '...' %}
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400">…</span>
+            {% elif number == page_obj.number %}
+            <span aria-current="page" class="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ number }}</span>
+            {% else %}
+            <a href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 inset-ring inset-ring-gray-300 hover:bg-gray-50 focus:outline-offset-0 dark:text-gray-100 dark:hover:bg-gray-800">{{ number }}</a>
+            {% endif %}
+          {% endfor %}
+        </nav>
+        {% if page_obj.has_next %}
+        {% with next_url=page_obj.next_page_number %}
+        <a href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ next_url }}" class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium transition bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">
+          Next
+        </a>
+        {% endwith %}
+        {% else %}
+        <span class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium cursor-not-allowed bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500">Next</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
   </div>
 </section>
 {% endblock content %}

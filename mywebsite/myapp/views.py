@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Iterable, List
+from datetime import datetime
+from decimal import Decimal
+from typing import Any, Dict, Iterable, List, Tuple
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -13,9 +15,19 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.generic import ListView, View
 
-from .models import Action, Product, Profile, contactList
+from .models import (
+    Action,
+    Booking,
+    BookingItem,
+    Product,
+    Program,
+    ProgramRate,
+    Profile,
+    contactList,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -73,24 +85,32 @@ def _serialize_user(user: User) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def home(request: HttpRequest) -> HttpResponse:
-    all_products = Product.objects.all()
-    paginator = Paginator(all_products, 3)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    programs = Program.objects.filter(active=True).prefetch_related("rates")
+    program_cards: List[Dict[str, Any]] = []
 
-    rows: List[List[Product]] = []
-    current_row: List[Product] = []
-    for index, product in enumerate(page_obj):
-        if index % 3 == 0 and current_row:
-            rows.append(current_row)
-            current_row = []
-        current_row.append(product)
-    if current_row:
-        rows.append(current_row)
+    for program in programs:
+        rate_map = {
+            (rate.participant_type, rate.age_group): rate.price
+            for rate in program.rates.all()
+        }
+        starting_price = None
+        if rate_map:
+            starting_price = min(rate_map.values())
+
+        program_cards.append(
+            {
+                "program": program,
+                "starting_price": starting_price,
+                "rider_adult": rate_map.get((ProgramRate.Participant.RIDER, ProgramRate.AgeGroup.ADULT)),
+                "rider_child": rate_map.get((ProgramRate.Participant.RIDER, ProgramRate.AgeGroup.CHILD)),
+                "passenger_adult": rate_map.get((ProgramRate.Participant.PASSENGER, ProgramRate.AgeGroup.ADULT)),
+                "passenger_child": rate_map.get((ProgramRate.Participant.PASSENGER, ProgramRate.AgeGroup.CHILD)),
+            }
+        )
 
     context = {
-        "allproduct": page_obj,
-        "allrow": rows,
+        "program_cards": program_cards,
+        "program_count": len(program_cards),
     }
     return render(request, "myapp/home.html", context)
 
@@ -117,39 +137,291 @@ def contact(request: HttpRequest) -> HttpResponse:
     return render(request, "myapp/contact.html", context)
 
 
+def _build_program_entries() -> Tuple[List[Dict[str, Any]], Dict[int, Dict[str, Any]]]:
+    programs_qs = Program.objects.filter(active=True).prefetch_related("rates")
+    program_entries: List[Dict[str, Any]] = []
+    program_lookup: Dict[int, Dict[str, Any]] = {}
+
+    for program in programs_qs:
+        rates_map = {
+            (rate.participant_type, rate.age_group): rate.price
+            for rate in program.rates.all()
+        }
+        rows: List[Dict[str, Any]] = []
+        for participant in ProgramRate.Participant.values:
+            participant_label = ProgramRate.Participant(participant).label
+            for age_group in ProgramRate.AgeGroup.values:
+                age_label = ProgramRate.AgeGroup(age_group).label
+                field = f"{participant}_{age_group}_{program.id}"
+                rows.append(
+                    {
+                        "participant": participant,
+                        "participant_label": participant_label,
+                        "age_group": age_group,
+                        "age_label": age_label,
+                        "field": field,
+                        "price": rates_map.get((participant, age_group)),
+                        "quantity": 0,
+                    }
+                )
+        rider_rows = [row for row in rows if row["participant"] == ProgramRate.Participant.RIDER]
+        passenger_rows = [row for row in rows if row["participant"] == ProgramRate.Participant.PASSENGER]
+        entry = {
+            "program": program,
+            "rows": rows,
+            "rider_rows": rider_rows,
+            "passenger_rows": passenger_rows,
+            "is_active": True,
+        }
+        program_entries.append(entry)
+        program_lookup[program.id] = entry
+
+    return program_entries, program_lookup
+
+
+def _process_booking_submission(
+    request: HttpRequest,
+    program_entries: List[Dict[str, Any]],
+    program_lookup: Dict[int, Dict[str, Any]],
+    *,
+    use_program_selector: bool = False,
+) -> Tuple[Booking | None, Dict[str, Any], List[str], Dict[str, int], List[int]]:
+    data = request.POST.copy()
+    full_name = data.get("full_name", "").strip()
+    email = data.get("email", "").strip()
+    phone = data.get("phone", "").strip()
+    ride_date_raw = data.get("ride_date", "").strip()
+    ride_time = data.get("ride_time", "").strip()
+    pickup_place = data.get("pickup_place", "").strip()
+    notes = data.get("notes", "").strip()
+
+    form_values: Dict[str, Any] = {
+        "full_name": full_name,
+        "email": email,
+        "phone": phone,
+        "ride_date": ride_date_raw,
+        "ride_time": ride_time,
+        "pickup_place": pickup_place,
+        "notes": notes,
+    }
+    errors: List[str] = []
+    quantity_values: Dict[str, int] = {}
+    active_program_ids: List[int] = []
+
+    if not full_name or not email or not phone or not ride_date_raw:
+        errors.append("Full name, email, phone, and ride date are required.")
+
+    ride_date = None
+    if ride_date_raw:
+        try:
+            ride_date = datetime.strptime(ride_date_raw, "%Y-%m-%d").date()
+        except ValueError:
+            errors.append("Ride date must be in YYYY-MM-DD format.")
+
+    if ride_time and ride_time not in dict(Booking.RideSlot.choices):
+        errors.append("Please select a valid ride time slot.")
+
+    items_payload: List[Dict[str, Any]] = []
+
+    if use_program_selector:
+        raw_program_ids = data.getlist("active_program")
+        seen_ids: set[int] = set()
+        for raw_id in raw_program_ids:
+            try:
+                program_id = int(raw_id)
+            except (TypeError, ValueError):
+                continue
+            if program_id in program_lookup and program_id not in seen_ids:
+                active_program_ids.append(program_id)
+                seen_ids.add(program_id)
+    else:
+        active_program_ids = [entry["program"].id for entry in program_entries]
+
+    entries_to_process = [
+        program_lookup[program_id]
+        for program_id in active_program_ids
+        if program_id in program_lookup
+    ]
+
+    if use_program_selector and not active_program_ids:
+        errors.append("Please select at least one program.")
+
+    for entry in entries_to_process:
+        program = entry["program"]
+        for row in entry["rows"]:
+            field = row["field"]
+            participant = row["participant"]
+            age_group = row["age_group"]
+            raw_value = data.get(field, "").strip()
+            if raw_value == "":
+                quantity_values[field] = 0
+                continue
+            try:
+                quantity = int(raw_value)
+            except ValueError:
+                errors.append(
+                    f"Quantity for {program.code} ({participant} {age_group}) must be a number."
+                )
+                continue
+            if quantity < 0:
+                errors.append(
+                    f"Quantity for {program.code} ({participant} {age_group}) cannot be negative."
+                )
+                continue
+            quantity_values[field] = quantity
+            if quantity > 0:
+                items_payload.append(
+                    {
+                        "program": program,
+                        "participant": participant,
+                        "age_group": age_group,
+                        "quantity": quantity,
+                    }
+                )
+
+    if not items_payload and not errors:
+        errors.append("Please select at least one rider or passenger.")
+
+    if not errors and ride_date is not None:
+        booking = Booking.objects.create(
+            full_name=full_name,
+            email=email,
+            phone=phone,
+            ride_date=ride_date,
+            ride_time=ride_time,
+            pickup_place=pickup_place,
+            notes=notes,
+        )
+        for item in items_payload:
+            BookingItem.objects.create(
+                booking=booking,
+                program=item["program"],
+                participant_type=item["participant"],
+                age_group=item["age_group"],
+                quantity=item["quantity"],
+                unit_price=Decimal("0"),
+                line_total=Decimal("0"),
+            )
+        booking.refresh_from_db()
+        return booking, form_values, errors, quantity_values, active_program_ids
+
+    return None, form_values, errors, quantity_values, active_program_ids
+
+
 def booking(request: HttpRequest) -> HttpResponse:
-    context: Dict[str, Any] = {}
+    program_entries, program_lookup = _build_program_entries()
+    form_values: Dict[str, Any] = {}
+    quantity_values: Dict[str, int] = {}
+    errors: List[str] = []
+    active_program_ids: List[int] = []
 
     if request.method == "POST":
-        data = request.POST.copy()
-        full_name = data.get("full_name", "").strip()
-        email = data.get("email", "").strip()
-        phone = data.get("phone", "").strip()
-        riders = data.get("riders", "").strip()
-        date = data.get("ride_date", "").strip()
-        time = data.get("ride_time", "").strip()
-        package = data.get("package", "").strip()
-        notes = data.get("notes", "").strip()
+        (
+            booking_obj,
+            form_values,
+            errors,
+            quantity_values,
+            active_program_ids,
+        ) = _process_booking_submission(
+            request,
+            program_entries,
+            program_lookup,
+            use_program_selector=True,
+        )
+        if booking_obj is not None:
+            return redirect("booking-success", booking_id=booking_obj.pk)
 
-        required_fields = [full_name, email, phone, riders, date, package]
-        if any(not field for field in required_fields):
-            context["message"] = "Please complete all required booking details."
-        else:
-            detail_lines = [
-                f"Name: {full_name}",
-                f"Phone: {phone}",
-                f"Riders: {riders}",
-                f"Preferred date: {date}",
-                f"Preferred time: {time or 'Not specified'}",
-                f"Package: {package}",
-                f"Notes: {notes or 'None provided'}",
-            ]
-            contactList.objects.create(
-                topic=f"Booking request - {package}",
-                email=email,
-                detail="\n".join(detail_lines),
-            )
-            context["success"] = True
+    for field in [
+        "full_name",
+        "email",
+        "phone",
+        "ride_date",
+        "ride_time",
+        "pickup_place",
+        "notes",
+    ]:
+        form_values.setdefault(field, "")
+
+    for entry in program_entries:
+        for row in entry["rows"]:
+            quantity = quantity_values.setdefault(row["field"], 0)
+            row["quantity"] = quantity
+        entry["is_active"] = entry["program"].id in active_program_ids
+
+    context = {
+        "program_entries": program_entries,
+        "ride_slots": Booking.RideSlot.choices,
+        "form_values": form_values,
+        "errors": errors,
+        "admin_booking_mode": False,
+        "active_program_ids": active_program_ids,
+    }
+
+    return render(request, "myapp/booking.html", context)
+
+
+@login_required(login_url="/login")
+def admin_booking_create(request: HttpRequest) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse("Forbidden", status=403)
+
+    program_entries, program_lookup = _build_program_entries()
+    form_values: Dict[str, Any] = {}
+    quantity_values: Dict[str, int] = {}
+    errors: List[str] = []
+    success_booking: Booking | None = None
+    active_program_ids: List[int] = []
+
+    if request.method == "POST":
+        (
+            booking_obj,
+            form_values,
+            errors,
+            quantity_values,
+            active_program_ids,
+        ) = _process_booking_submission(
+            request,
+            program_entries,
+            program_lookup,
+            use_program_selector=True,
+        )
+        if booking_obj is not None:
+            success_booking = booking_obj
+            form_values = {}
+            quantity_values = {}
+            active_program_ids = []
+
+    for field in [
+        "full_name",
+        "email",
+        "phone",
+        "ride_date",
+        "ride_time",
+        "pickup_place",
+        "notes",
+    ]:
+        form_values.setdefault(field, "")
+
+    if not form_values["ride_date"]:
+        form_values["ride_date"] = timezone.localdate().isoformat()
+    if not form_values["pickup_place"]:
+        form_values["pickup_place"] = "None"
+
+    for entry in program_entries:
+        for row in entry["rows"]:
+            quantity = quantity_values.setdefault(row["field"], 0)
+            row["quantity"] = quantity
+        entry["is_active"] = entry["program"].id in active_program_ids
+
+    context = {
+        "program_entries": program_entries,
+        "ride_slots": Booking.RideSlot.choices,
+        "form_values": form_values,
+        "errors": errors,
+        "success_booking": success_booking,
+        "admin_booking_mode": True,
+        "active_program_ids": active_program_ids,
+    }
 
     return render(request, "myapp/booking.html", context)
 
@@ -184,8 +456,59 @@ def showBookings(request: HttpRequest) -> HttpResponse:
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponse("Forbidden", status=403)
 
-    bookings = contactList.objects.filter(topic__startswith="Booking request").order_by("-id")
-    return render(request, "myapp/booking_list.html", {"bookings": bookings})
+    bookings_qs = (
+        Booking.objects.prefetch_related("items__program")
+        .order_by("-created_at")
+    )
+
+    program_value = request.GET.get("program", "").strip()
+    date_value = request.GET.get("ride_date", "").strip()
+
+    if program_value:
+        try:
+            program_id = int(program_value)
+        except (TypeError, ValueError):
+            program_value = ""
+        else:
+            bookings_qs = bookings_qs.filter(items__program_id=program_id).distinct()
+
+    if date_value:
+        try:
+            ride_date = datetime.strptime(date_value, "%Y-%m-%d").date()
+        except ValueError:
+            date_value = ""
+        else:
+            bookings_qs = bookings_qs.filter(ride_date=ride_date)
+
+    paginator = Paginator(bookings_qs, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    preserved_params = request.GET.copy()
+    if "page" in preserved_params:
+        preserved_params.pop("page")
+    filter_query = preserved_params.urlencode()
+
+    context = {
+        "bookings": page_obj.object_list,
+        "page_obj": page_obj,
+        "paginator": paginator,
+        "total_results": paginator.count,
+        "programs": Program.objects.filter(active=True).order_by("name"),
+        "selected_program": program_value,
+        "selected_date": date_value,
+        "filter_query": filter_query,
+        "page_range": paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1),
+    }
+
+    return render(request, "myapp/booking_list.html", context)
+
+
+def booking_success(request: HttpRequest, booking_id: int) -> HttpResponse:
+    booking = get_object_or_404(
+        Booking.objects.prefetch_related("items__program"), pk=booking_id
+    )
+    return render(request, "myapp/booking_success.html", {"booking": booking})
 
 
 def userRegist(request: HttpRequest) -> HttpResponse:

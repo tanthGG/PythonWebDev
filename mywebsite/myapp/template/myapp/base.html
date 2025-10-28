@@ -266,16 +266,16 @@
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-main">
               <ul class="flex flex-col gap-1 text-sm font-medium md:flex-row md:items-center md:gap-6">
                 <li>
-                  <a href="{% url 'home' %}" class="block rounded-md px-3 py-1.5 text-blue-600 md:px-0 md:py-0 md:text-blue-600 dark:text-blue-400" aria-current="page">Home</a>
+                  <a href="{% url 'home' %}" class="block rounded-md px-3 py-1.5 {% if request.resolver_match.url_name == 'home' %}text-blue-600 md:px-0 md:py-0 md:text-blue-600 dark:text-blue-400{% else %}text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400{% endif %}" aria-current="page">Home</a>
                 </li>
                 <li>
-                  <a href="{% url 'about-page' %}" class="block rounded-md px-3 py-1.5 text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400">About</a>
+                  <a href="{% url 'about-page' %}" class="block rounded-md px-3 py-1.5 {% if request.resolver_match.url_name == 'about-page' %}text-blue-600 md:px-0 md:py-0 md:text-blue-600 dark:text-blue-400{% else %}text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400{% endif %}">About</a>
                 </li>
                 <li>
-                  <a href="{% url 'booking-page' %}" class="block rounded-md px-3 py-1.5 text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400">Booking</a>
+                  <a href="{% url 'booking-page' %}" class="block rounded-md px-3 py-1.5 {% if request.resolver_match.url_name == 'booking-page' %}text-blue-600 md:px-0 md:py-0 md:text-blue-600 dark:text-blue-400{% else %}text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400{% endif %}">Booking</a>
                 </li>
                 <li>
-                  <a href="{% url 'contact-page' %}" class="block rounded-md px-3 py-1.5 text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400">Contact</a>
+                  <a href="{% url 'contact-page' %}" class="block rounded-md px-3 py-1.5 {% if request.resolver_match.url_name == 'contact-page' %}text-blue-600 md:px-0 md:py-0 md:text-blue-600 dark:text-blue-400{% else %}text-gray-700 transition hover:text-blue-600 md:px-0 md:py-0 dark:text-gray-200 md:dark:hover:text-blue-400{% endif %}">Contact</a>
                 </li>
                 {% if user.is_authenticated and user.profile.usertype == "admin" %}
                 <li class="relative">
@@ -287,6 +287,7 @@
                   </button>
                   <div id="admin-menu" class="absolute left-0 mt-2 hidden w-48 rounded-xl border border-gray-200 bg-white/95 shadow-lg shadow-blue-100/60 ring-1 ring-black/5 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800 dark:ring-0">
                     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                      <li><a href="{% url 'admin-booking-create' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Walk-in booking</a></li>
                       <li><a href="{% url 'showcontact-page' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Show contact</a></li>
                       <li><a href="{% url 'booking-list-page' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Bookings</a></li>
                       <li><a href="{% url 'addproduct-page' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Add product</a></li>
