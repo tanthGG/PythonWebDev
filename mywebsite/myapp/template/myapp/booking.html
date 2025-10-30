@@ -268,6 +268,32 @@
         </div>
       </div>
 
+      {% if addon_entries %}
+      <div class="mt-12 rounded-3xl border border-white/60 bg-white/90 p-8 shadow-xl shadow-emerald-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-emerald-900/30">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Extras</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Add escort riders or transfer services to this booking. Leave at zero if not needed.</p>
+          </div>
+          <button type="button" id="booking-clear-addons" class="inline-flex items-center rounded-full border border-emerald-200 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-200 dark:hover:bg-emerald-900/30">Clear extras</button>
+        </div>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          {% for entry in addon_entries %}
+          <div class="flex items-center justify-between rounded-2xl border border-gray-200 bg-white/80 px-5 py-4 shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+            <div>
+              <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ entry.addon.name }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ entry.addon.price|floatformat:0 }} THB</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="{{ entry.field }}" class="text-xs text-gray-500 dark:text-gray-400">Qty</label>
+              <input id="{{ entry.field }}" name="{{ entry.field }}" type="number" min="0" value="{{ entry.quantity }}" data-addon="true" data-program="{{ entry.addon.name }}" data-participant="Add-on" data-age="—" data-price="{{ entry.addon.price|floatformat:2 }}" class="booking-addon-input w-24 rounded-lg border border-gray-200 px-3 py-2 text-right text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
       <!-- Live summary -->
       <div class="space-y-4 rounded-3xl border border-white/60 bg-white/90 p-8 shadow-xl shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30">
         <div class="flex items-center justify-between">
@@ -309,7 +335,9 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const qtyInputs = Array.from(document.querySelectorAll('.booking-qty-input'));
+    const programInputs = Array.from(document.querySelectorAll('.booking-qty-input'));
+    const addonInputs = Array.from(document.querySelectorAll('.booking-addon-input'));
+    const qtyInputs = programInputs.concat(addonInputs);
     const summaryBody = document.getElementById('booking-summary-body');
     const summaryTotal = document.getElementById('booking-summary-total');
     const currency = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -483,6 +511,16 @@
           if (!input.disabled) {
             input.value = 0;
           }
+        });
+        updateSummary();
+      });
+    }
+
+    const clearAddons = document.getElementById('booking-clear-addons');
+    if (clearAddons) {
+      clearAddons.addEventListener('click', () => {
+        addonInputs.forEach((input) => {
+          input.value = 0;
         });
         updateSummary();
       });

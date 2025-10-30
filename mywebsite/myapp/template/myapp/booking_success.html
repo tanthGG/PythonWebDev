@@ -45,6 +45,16 @@
               {% empty %}
               <tr><td colspan="6" class="py-4 text-center text-gray-500 dark:text-gray-400">No items.</td></tr>
               {% endfor %}
+              {% for addon in booking.addons.all %}
+              <tr>
+                <td class="py-2">{{ addon.addon.name }}</td>
+                <td class="py-2">Add-on</td>
+                <td class="py-2">—</td>
+                <td class="py-2 text-right">{{ addon.quantity }}</td>
+                <td class="py-2 text-right">{{ addon.unit_price|floatformat:0 }} THB</td>
+                <td class="py-2 text-right font-semibold">{{ addon.line_total|floatformat:0 }} THB</td>
+              </tr>
+              {% endfor %}
             </tbody>
           </table>
           <div class="mt-4 flex items-center justify-between text-lg font-semibold text-gray-900 dark:text-white">

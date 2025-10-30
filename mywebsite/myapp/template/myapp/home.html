@@ -75,7 +75,11 @@
       {% for card in program_cards %}
       <article class="group flex flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-900">
         <div class="relative overflow-hidden bg-gray-100 dark:bg-gray-800">
+          {% if card.primary_image %}
+          <img src="{{ card.primary_image.image.url }}" alt="{{ card.primary_image.alt_text|default:card.program.name }}" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105">
+          {% else %}
           <img src="{% static 'image/atv.png' %}" alt="{{ card.program.name }}" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105">
+          {% endif %}
           <span class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 shadow dark:bg-emerald-900/40 dark:text-emerald-200">
             <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
             Available

@@ -11,20 +11,39 @@
         <span class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
           Admin dashboard
         </span>
-        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Booking requests</h1>
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Booking report</h1>
         <p class="text-lg text-gray-600 dark:text-gray-300">
-          Review recent tour booking requests, follow up with riders, and close the loop once confirmed.
+          Monitor booking performance, track revenue, and drill into individual reservations—all in one place.
         </p>
       </div>
       <div class="flex items-center gap-3 self-start rounded-2xl border border-blue-100 bg-white px-5 py-4 text-sm font-medium text-blue-700 shadow-lg shadow-blue-200/40 dark:border-blue-500/30 dark:bg-gray-900 dark:text-blue-200 dark:shadow-blue-900/30">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25v13.5A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75Z" />
         </svg>
-        {{ total_results }} result{{ total_results|pluralize }}
+        {{ total_results }} booking{{ total_results|pluralize }}
       </div>
     </div>
 
-    <form method="get" class="mt-10 flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/90 p-6 shadow-lg shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30 sm:flex-row sm:items-end sm:justify-between">
+    <div class="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm dark:border-blue-500/30 dark:bg-gray-900">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Total bookings</p>
+        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ total_results }}</p>
+      </div>
+      <div class="rounded-2xl border border-emerald-100 bg-white px-5 py-4 shadow-sm dark:border-emerald-500/30 dark:bg-gray-900">
+        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">Revenue</p>
+        <p class="mt-2 text-3xl font-bold text-emerald-700 dark:text-emerald-200">{{ total_revenue|floatformat:0 }} THB</p>
+      </div>
+      <div class="rounded-2xl border border-indigo-100 bg-white px-5 py-4 shadow-sm dark:border-indigo-500/30 dark:bg-gray-900">
+        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-300">Average booking value</p>
+        <p class="mt-2 text-3xl font-bold text-indigo-700 dark:text-indigo-200">{{ average_revenue|floatformat:0 }} THB</p>
+      </div>
+      <div class="rounded-2xl border border-amber-100 bg-white px-5 py-4 shadow-sm dark:border-amber-500/30 dark:bg-gray-900">
+        <p class="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-300">Upcoming rides</p>
+        <p class="mt-2 text-3xl font-bold text-amber-700 dark:text-amber-200">{{ upcoming_count }}</p>
+      </div>
+    </div>
+
+    <form method="get" class="mt-8 flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/90 p-6 shadow-lg shadow-blue-200/30 backdrop-blur dark:border-white/10 dark:bg-gray-900/80 dark:shadow-blue-900/30 sm:flex-row sm:items-end sm:justify-between">
       <div class="flex w-full flex-col gap-4 sm:flex-row sm:items-end">
         <div class="w-full sm:w-64">
           <label for="program" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Program</label>
@@ -102,6 +121,16 @@
                       </tr>
                       {% empty %}
                       <tr><td colspan="6" class="px-3 py-3 text-center text-gray-500 dark:text-gray-400">No line items</td></tr>
+                      {% endfor %}
+                      {% for addon in booking.addons.all %}
+                      <tr>
+                        <td class="px-3 py-2 text-gray-900 dark:text-gray-100">{{ addon.addon.name }}</td>
+                        <td class="px-3 py-2 text-gray-700 dark:text-gray-300">Add-on</td>
+                        <td class="px-3 py-2 text-gray-700 dark:text-gray-300">—</td>
+                        <td class="px-3 py-2 text-right">{{ addon.quantity }}</td>
+                        <td class="px-3 py-2 text-right">{{ addon.unit_price|floatformat:0 }}</td>
+                        <td class="px-3 py-2 text-right font-semibold">{{ addon.line_total|floatformat:0 }}</td>
+                      </tr>
                       {% endfor %}
                     </tbody>
                   </table>

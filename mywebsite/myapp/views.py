@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -20,10 +20,13 @@ from django.views.generic import ListView, View
 
 from .models import (
     Action,
+    Addon,
     Booking,
+    BookingAddon,
     BookingItem,
     Product,
     Program,
+    ProgramImage,
     ProgramRate,
     Profile,
     contactList,
@@ -85,7 +88,7 @@ def _serialize_user(user: User) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def home(request: HttpRequest) -> HttpResponse:
-    programs = Program.objects.filter(active=True).prefetch_related("rates")
+    programs = Program.objects.filter(active=True).prefetch_related("rates", "images")
     program_cards: List[Dict[str, Any]] = []
 
     for program in programs:
@@ -105,6 +108,7 @@ def home(request: HttpRequest) -> HttpResponse:
                 "rider_child": rate_map.get((ProgramRate.Participant.RIDER, ProgramRate.AgeGroup.CHILD)),
                 "passenger_adult": rate_map.get((ProgramRate.Participant.PASSENGER, ProgramRate.AgeGroup.ADULT)),
                 "passenger_child": rate_map.get((ProgramRate.Participant.PASSENGER, ProgramRate.AgeGroup.CHILD)),
+                "primary_image": program.primary_image(),
             }
         )
 
@@ -138,7 +142,7 @@ def contact(request: HttpRequest) -> HttpResponse:
 
 
 def _build_program_entries() -> Tuple[List[Dict[str, Any]], Dict[int, Dict[str, Any]]]:
-    programs_qs = Program.objects.filter(active=True).prefetch_related("rates")
+    programs_qs = Program.objects.filter(active=True).prefetch_related("rates", "images")
     program_entries: List[Dict[str, Any]] = []
     program_lookup: Dict[int, Dict[str, Any]] = {}
 
@@ -172,6 +176,7 @@ def _build_program_entries() -> Tuple[List[Dict[str, Any]], Dict[int, Dict[str, 
             "rider_rows": rider_rows,
             "passenger_rows": passenger_rows,
             "is_active": True,
+            "primary_image": program.primary_image(),
         }
         program_entries.append(entry)
         program_lookup[program.id] = entry
@@ -179,13 +184,34 @@ def _build_program_entries() -> Tuple[List[Dict[str, Any]], Dict[int, Dict[str, 
     return program_entries, program_lookup
 
 
+def _build_addon_entries() -> List[Dict[str, Any]]:
+    entries: List[Dict[str, Any]] = []
+    for addon in Addon.objects.filter(active=True).order_by("name"):
+        entries.append(
+            {
+                "addon": addon,
+                "field": f"addon_{addon.id}",
+                "quantity": 0,
+            }
+        )
+    return entries
+
+
 def _process_booking_submission(
     request: HttpRequest,
     program_entries: List[Dict[str, Any]],
     program_lookup: Dict[int, Dict[str, Any]],
+    addon_entries: List[Dict[str, Any]],
     *,
     use_program_selector: bool = False,
-) -> Tuple[Booking | None, Dict[str, Any], List[str], Dict[str, int], List[int]]:
+) -> Tuple[
+    Booking | None,
+    Dict[str, Any],
+    List[str],
+    Dict[str, int],
+    List[int],
+    Dict[str, int],
+]:
     data = request.POST.copy()
     full_name = data.get("full_name", "").strip()
     email = data.get("email", "").strip()
@@ -222,6 +248,8 @@ def _process_booking_submission(
         errors.append("Please select a valid ride time slot.")
 
     items_payload: List[Dict[str, Any]] = []
+    addon_quantities: Dict[str, int] = {}
+    addon_payload: List[Dict[str, Any]] = []
 
     if use_program_selector:
         raw_program_ids = data.getlist("active_program")
@@ -282,6 +310,25 @@ def _process_booking_submission(
     if not items_payload and not errors:
         errors.append("Please select at least one rider or passenger.")
 
+    for entry in addon_entries:
+        field = entry["field"]
+        addon = entry["addon"]
+        raw_value = data.get(field, "").strip()
+        if raw_value == "":
+            addon_quantities[field] = 0
+            continue
+        try:
+            quantity = int(raw_value)
+        except ValueError:
+            errors.append(f"Quantity for {addon.name} must be a number.")
+            continue
+        if quantity < 0:
+            errors.append(f"Quantity for {addon.name} cannot be negative.")
+            continue
+        addon_quantities[field] = quantity
+        if quantity > 0:
+            addon_payload.append({"addon": addon, "quantity": quantity})
+
     if not errors and ride_date is not None:
         booking = Booking.objects.create(
             full_name=full_name,
@@ -302,18 +349,35 @@ def _process_booking_submission(
                 unit_price=Decimal("0"),
                 line_total=Decimal("0"),
             )
+        for addon in addon_payload:
+            BookingAddon.objects.create(
+                booking=booking,
+                addon=addon["addon"],
+                quantity=addon["quantity"],
+                unit_price=Decimal("0"),
+                line_total=Decimal("0"),
+            )
         booking.refresh_from_db()
-        return booking, form_values, errors, quantity_values, active_program_ids
+        return (
+            booking,
+            form_values,
+            errors,
+            quantity_values,
+            active_program_ids,
+            addon_quantities,
+        )
 
-    return None, form_values, errors, quantity_values, active_program_ids
+    return None, form_values, errors, quantity_values, active_program_ids, addon_quantities
 
 
 def booking(request: HttpRequest) -> HttpResponse:
     program_entries, program_lookup = _build_program_entries()
+    addon_entries = _build_addon_entries()
     form_values: Dict[str, Any] = {}
     quantity_values: Dict[str, int] = {}
     errors: List[str] = []
     active_program_ids: List[int] = []
+    addon_quantities: Dict[str, int] = {}
 
     if request.method == "POST":
         (
@@ -322,10 +386,12 @@ def booking(request: HttpRequest) -> HttpResponse:
             errors,
             quantity_values,
             active_program_ids,
+            addon_quantities,
         ) = _process_booking_submission(
             request,
             program_entries,
             program_lookup,
+            addon_entries,
             use_program_selector=True,
         )
         if booking_obj is not None:
@@ -348,8 +414,12 @@ def booking(request: HttpRequest) -> HttpResponse:
             row["quantity"] = quantity
         entry["is_active"] = entry["program"].id in active_program_ids
 
+    for entry in addon_entries:
+        entry["quantity"] = addon_quantities.get(entry["field"], 0)
+
     context = {
         "program_entries": program_entries,
+        "addon_entries": addon_entries,
         "ride_slots": Booking.RideSlot.choices,
         "form_values": form_values,
         "errors": errors,
@@ -366,11 +436,13 @@ def admin_booking_create(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Forbidden", status=403)
 
     program_entries, program_lookup = _build_program_entries()
+    addon_entries = _build_addon_entries()
     form_values: Dict[str, Any] = {}
     quantity_values: Dict[str, int] = {}
     errors: List[str] = []
     success_booking: Booking | None = None
     active_program_ids: List[int] = []
+    addon_quantities: Dict[str, int] = {}
 
     if request.method == "POST":
         (
@@ -379,10 +451,12 @@ def admin_booking_create(request: HttpRequest) -> HttpResponse:
             errors,
             quantity_values,
             active_program_ids,
+            addon_quantities,
         ) = _process_booking_submission(
             request,
             program_entries,
             program_lookup,
+            addon_entries,
             use_program_selector=True,
         )
         if booking_obj is not None:
@@ -390,6 +464,7 @@ def admin_booking_create(request: HttpRequest) -> HttpResponse:
             form_values = {}
             quantity_values = {}
             active_program_ids = []
+            addon_quantities = {}
 
     for field in [
         "full_name",
@@ -413,8 +488,12 @@ def admin_booking_create(request: HttpRequest) -> HttpResponse:
             row["quantity"] = quantity
         entry["is_active"] = entry["program"].id in active_program_ids
 
+    for entry in addon_entries:
+        entry["quantity"] = addon_quantities.get(entry["field"], 0)
+
     context = {
         "program_entries": program_entries,
+        "addon_entries": addon_entries,
         "ride_slots": Booking.RideSlot.choices,
         "form_values": form_values,
         "errors": errors,
@@ -457,7 +536,7 @@ def showBookings(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Forbidden", status=403)
 
     bookings_qs = (
-        Booking.objects.prefetch_related("items__program")
+        Booking.objects.prefetch_related("items__program", "addons__addon")
         .order_by("-created_at")
     )
 
@@ -480,6 +559,16 @@ def showBookings(request: HttpRequest) -> HttpResponse:
         else:
             bookings_qs = bookings_qs.filter(ride_date=ride_date)
 
+    total_results = bookings_qs.count()
+    aggregates = bookings_qs.aggregate(
+        total_revenue=Sum("total_amount"),
+        booking_count=Count("id"),
+    )
+    total_revenue = aggregates["total_revenue"] or Decimal("0")
+    booking_count = aggregates["booking_count"] or 0
+    average_revenue = total_revenue / booking_count if booking_count else Decimal("0")
+    upcoming_count = bookings_qs.filter(ride_date__gte=timezone.localdate()).count()
+
     paginator = Paginator(bookings_qs, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -493,7 +582,10 @@ def showBookings(request: HttpRequest) -> HttpResponse:
         "bookings": page_obj.object_list,
         "page_obj": page_obj,
         "paginator": paginator,
-        "total_results": paginator.count,
+        "total_results": total_results,
+        "total_revenue": total_revenue,
+        "average_revenue": average_revenue,
+        "upcoming_count": upcoming_count,
         "programs": Program.objects.filter(active=True).order_by("name"),
         "selected_program": program_value,
         "selected_date": date_value,
@@ -506,7 +598,7 @@ def showBookings(request: HttpRequest) -> HttpResponse:
 
 def booking_success(request: HttpRequest, booking_id: int) -> HttpResponse:
     booking = get_object_or_404(
-        Booking.objects.prefetch_related("items__program"), pk=booking_id
+        Booking.objects.prefetch_related("items__program", "addons__addon"), pk=booking_id
     )
     return render(request, "myapp/booking_success.html", {"booking": booking})
 
@@ -629,44 +721,155 @@ def actionPage(request: HttpRequest, cid: int) -> HttpResponse:
 
 
 @login_required(login_url="/login")
-def addProduct(request: HttpRequest) -> HttpResponse:
+def addProgram(request: HttpRequest) -> HttpResponse:
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponse("Forbidden", status=403)
 
-    context: Dict[str, Any] = {}
+    rate_fields = [
+        {
+            "field": f"rate_{ProgramRate.Participant.RIDER}_{ProgramRate.AgeGroup.ADULT}",
+            "label": "Rider – Adult",
+            "participant": ProgramRate.Participant.RIDER,
+            "age": ProgramRate.AgeGroup.ADULT,
+        },
+        {
+            "field": f"rate_{ProgramRate.Participant.RIDER}_{ProgramRate.AgeGroup.CHILD}",
+            "label": "Rider – Child",
+            "participant": ProgramRate.Participant.RIDER,
+            "age": ProgramRate.AgeGroup.CHILD,
+        },
+        {
+            "field": f"rate_{ProgramRate.Participant.PASSENGER}_{ProgramRate.AgeGroup.ADULT}",
+            "label": "Passenger – Adult",
+            "participant": ProgramRate.Participant.PASSENGER,
+            "age": ProgramRate.AgeGroup.ADULT,
+        },
+        {
+            "field": f"rate_{ProgramRate.Participant.PASSENGER}_{ProgramRate.AgeGroup.CHILD}",
+            "label": "Passenger – Child",
+            "participant": ProgramRate.Participant.PASSENGER,
+            "age": ProgramRate.AgeGroup.CHILD,
+        },
+    ]
+
+    form_values: Dict[str, Any] = {
+        "code": "",
+        "name": "",
+        "duration_minutes": "60",
+        "description": "",
+        "active": True,
+    }
+    rate_values: Dict[str, str] = {field["field"]: "" for field in rate_fields}
+    for field in rate_fields:
+        field["value"] = ""
+    errors: List[str] = []
+    success = False
 
     if request.method == "POST":
         data = request.POST.copy()
-        title = data.get("title")
-        description = data.get("description")
-        price = data.get("price")
-        quantity = data.get("quantity")
-        instock = data.get("instock")
+        code = data.get("code", "").strip()
+        name = data.get("name", "").strip()
+        duration_raw = data.get("duration_minutes", "60").strip()
+        description = data.get("description", "").strip()
+        active = _parse_bool(data.get("active"), default=True)
 
-        product = Product(
-            title=title,
-            description=description,
-            price=float(price) if price else None,
-            quantity=int(quantity) if quantity else 0,
-            instock=_parse_bool(instock, default=False) or False,
+        form_values.update(
+            {
+                "code": code,
+                "name": name,
+                "duration_minutes": duration_raw,
+                "description": description,
+                "active": active,
+            }
         )
 
-        if "picture" in request.FILES:
-            picture = request.FILES["picture"]
-            storage = FileSystemStorage(location="media/product")
-            filename = storage.save(picture.name.replace(" ", "_"), picture)
-            product.picture = f"product/{filename}"
+        if not code:
+            errors.append("Program code is required.")
+        elif Program.objects.filter(code=code).exists():
+            errors.append("Program code must be unique.")
 
-        if "specfile" in request.FILES:
-            specfile = request.FILES["specfile"]
-            storage = FileSystemStorage(location="media/specfile")
-            filename = storage.save(specfile.name.replace(" ", "_"), specfile)
-            product.specfile = f"specfile/{filename}"
+        if not name:
+            errors.append("Program name is required.")
 
-        product.save()
-        context["success"] = True
+        try:
+            duration_minutes = int(duration_raw)
+            if duration_minutes <= 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            errors.append("Duration must be a positive whole number (minutes).")
+            duration_minutes = 60
 
-    return render(request, "myapp/addproduct.html", context)
+        parsed_rates: List[Dict[str, Any]] = []
+        for field in rate_fields:
+            value = data.get(field["field"], "").strip()
+            rate_values[field["field"]] = value
+            field["value"] = value
+            if value == "":
+                continue
+            try:
+                price = Decimal(value)
+                if price < 0:
+                    raise ValueError
+            except (ArithmeticError, ValueError):
+                errors.append(f"Price for {field['label']} must be a non-negative number.")
+                continue
+            parsed_rates.append(
+                {
+                    "participant": field["participant"],
+                    "age": field["age"],
+                    "price": price,
+                }
+            )
+
+        image_files = request.FILES.getlist("images")
+        if not image_files:
+            errors.append("Please upload at least one program image.")
+
+        if not errors:
+            program = Program.objects.create(
+                code=code,
+                name=name,
+                duration_minutes=duration_minutes,
+                description=description,
+                active=bool(active),
+            )
+
+            for rate in parsed_rates:
+                ProgramRate.objects.update_or_create(
+                    program=program,
+                    participant_type=rate["participant"],
+                    age_group=rate["age"],
+                    defaults={"price": rate["price"]},
+                )
+
+            for index, image in enumerate(image_files):
+                ProgramImage.objects.create(
+                    program=program,
+                    image=image,
+                    alt_text=description[:140] or name,
+                    display_order=index,
+                )
+
+            success = True
+            form_values.update({
+                "code": "",
+                "name": "",
+                "duration_minutes": "60",
+                "description": "",
+                "active": True,
+            })
+            rate_values = {field["field"]: "" for field in rate_fields}
+            for field in rate_fields:
+                field["value"] = ""
+
+    context = {
+        "form_values": form_values,
+        "rate_fields": rate_fields,
+        "errors": errors,
+        "success": success,
+    }
+
+    return render(request, "myapp/addprogram.html", context)
 
 
 def handler404(request: HttpRequest, exception: Exception) -> HttpResponse:

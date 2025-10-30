@@ -68,6 +68,9 @@ class Program(models.Model):
             ) from exc
         return rate.price
 
+    def primary_image(self):
+        return self.images.order_by("display_order", "id").first()
+
 
 class ProgramRate(models.Model):
     class Participant(models.TextChoices):
@@ -91,6 +94,36 @@ class ProgramRate(models.Model):
         return f"{self.program.code} - {self.participant_type} ({self.age_group})"
 
 
+class ProgramImage(models.Model):
+    program = models.ForeignKey(
+        Program,
+        on_delete=models.CASCADE,
+        related_name="images",
+    )
+    image = models.ImageField(upload_to="programs/")
+    alt_text = models.CharField(max_length=150, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["display_order", "id"]
+
+    def __str__(self) -> str:
+        return f"{self.program.code} image #{self.pk}"
+
+
+class Addon(models.Model):
+    code = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=150)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.code})"
+
+
 class Booking(models.Model):
     class RideSlot(models.TextChoices):
         MORNING = "morning", "Morning"
@@ -111,7 +144,9 @@ class Booking(models.Model):
         ordering = ["-created_at"]
 
     def update_total(self) -> None:
-        total = self.items.aggregate(total=Sum("line_total"))['total'] or Decimal("0")
+        items_total = self.items.aggregate(total=Sum("line_total"))["total"] or Decimal("0")
+        addons_total = self.addons.aggregate(total=Sum("line_total"))["total"] or Decimal("0")
+        total = items_total + addons_total
         Booking.objects.filter(pk=self.pk).update(total_amount=total)
         self.total_amount = total
 
@@ -144,3 +179,28 @@ class BookingItem(models.Model):
 
     def __str__(self) -> str:
         return f"{self.program.code} x {self.quantity} ({self.get_participant_type_display()} {self.get_age_group_display()})"
+
+
+class BookingAddon(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="addons")
+    addon = models.ForeignKey(Addon, on_delete=models.PROTECT, related_name="booking_addons")
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=8, decimal_places=2)
+    line_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        ordering = ["booking_id", "id"]
+
+    def save(self, *args, **kwargs):
+        self.unit_price = self.addon.price
+        self.line_total = self.unit_price * Decimal(self.quantity)
+        super().save(*args, **kwargs)
+        self.booking.update_total()
+
+    def delete(self, *args, **kwargs):
+        booking = self.booking
+        super().delete(*args, **kwargs)
+        booking.update_total()
+
+    def __str__(self) -> str:
+        return f"{self.addon.code} x {self.quantity}"
