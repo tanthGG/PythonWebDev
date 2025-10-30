@@ -9,7 +9,7 @@
 <section class="relative overflow-hidden bg-gradient-to-br from-sky-100 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900">
   <div class="mx-auto flex max-w-screen-2xl flex-col gap-16 px-4 py-16 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-24">
     <div class="max-w-xl space-y-6 text-center lg:text-left">
-      <span class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
+      <span class="inline-flex items-center gap-2 rounded-full bg-[#AAD9BB]/40 px-4 py-1 text-sm font-medium text-[#35605A]">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 15 4 4 12-12" />
         </svg>
@@ -30,29 +30,59 @@
         VIP member bonus: take <span class="text-xl font-bold">10% off</span> all adventures.
       </div>
       {% elif user.profile.usertype == 'member' %}
-      <div class="rounded-xl border border-blue-500/30 bg-blue-100/60 px-5 py-4 text-sm font-semibold text-blue-700 shadow-sm dark:border-blue-400/40 dark:bg-blue-900/30 dark:text-blue-200">
+      <div class="rounded-xl border border-[#AAD9BB] bg-[#AAD9BB]/40 px-5 py-4 text-sm font-semibold text-[#35605A] shadow-sm">
         Member reward: claim <span class="text-xl font-bold">5% off</span> every booking.
       </div>
       {% endif %}
       <div class="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-        <a href="#packages" class="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
+        <a href="#packages" class="inline-flex items-center justify-center rounded-full bg-[#80BCBD] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#80BCBD]/40 transition hover:bg-[#6AA4A5] focus:outline-none focus:ring-4 focus:ring-[#AAD9BB]">
           Our tours programs
           <svg class="ms-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
           </svg>
         </a>
-        <a href="{% url 'contact-page' %}" class="inline-flex items-center justify-center rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+        <a href="{% url 'contact-page' %}" class="inline-flex items-center justify-center rounded-full border border-[#AAD9BB] px-6 py-3 text-sm font-semibold text-[#35605A] transition hover:bg-[#AAD9BB]/30">
           Talk to our guide
         </a>
       </div>
+      <dl class="mt-10 grid gap-6 text-left sm:grid-cols-3">
+        <div class="rounded-2xl border border-[#AAD9BB] bg-white/80 p-5 shadow-sm">
+          <dt class="text-xs font-semibold uppercase tracking-wide text-[#35605A]">Adventures delivered</dt>
+          <dd class="mt-2 text-3xl font-bold text-gray-900">25k+</dd>
+          <p class="mt-1 text-sm text-gray-600">Riders guided safely through Phuket’s jungles and coastline.</p>
+        </div>
+        <div class="rounded-2xl border border-[#D5F0C1] bg-white/80 p-5 shadow-sm">
+          <dt class="text-xs font-semibold uppercase tracking-wide text-[#35605A]">Certified guides</dt>
+          <dd class="mt-2 text-3xl font-bold text-gray-900">15</dd>
+          <p class="mt-1 text-sm text-gray-600">Local experts trained in wilderness first aid and off-road coaching.</p>
+        </div>
+        <div class="rounded-2xl border border-[#F9F7C9] bg-white/80 p-5 shadow-sm">
+          <dt class="text-xs font-semibold uppercase tracking-wide text-[#7A7310]">Weather ready</dt>
+          <dd class="mt-2 text-3xl font-bold text-gray-900">365</dd>
+          <p class="mt-1 text-sm text-gray-600">All-season routes with alternative trails for sun or rain days.</p>
+        </div>
+      </dl>
     </div>
     <div class="relative mx-auto w-full max-w-lg lg:m-0">
-      <div class="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-blue-200/60 blur-3xl dark:bg-blue-500/20"></div>
-      <div class="absolute -right-8 bottom-0 h-32 w-32 rounded-full bg-emerald-200/40 blur-3xl dark:bg-emerald-500/10"></div>
-      <div class="relative overflow-hidden rounded-3xl border border-white/40 bg-white shadow-2xl ring-1 ring-black/5 dark:border-white/10 dark:bg-gray-800">
+      <div class="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-[#AAD9BB]/60 blur-3xl"></div>
+      <div class="absolute -right-8 bottom-0 h-32 w-32 rounded-full bg-[#F9F7C9]/60 blur-3xl"></div>
+      <div class="relative overflow-hidden rounded-3xl border border-white/40 bg-white shadow-2xl ring-1 ring-black/5">
         <img src="{% static 'image/atv.png' %}" alt="ATV Phuket adventures" class="h-auto w-full object-contain p-6" />
       </div>
     </div>
+  </div>
+</section>
+
+<section id="discover" class="bg-gradient-to-br from-white via-sky-50 to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900">
+  <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="mx-auto mb-10 h-1 w-24 rounded-full bg-gradient-to-r from-blue-600 via-sky-400 to-emerald-400"></div>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Discover Phuket’s untamed rainforest by ATV</h2>
+      <div class="mt-6 space-y-4 text-base leading-7 text-gray-700 dark:text-gray-300">
+        <p>If you’re looking for a new way to explore the natural wonderland of Phuket province, Phuket ATV offers a different and unique all-terrain vehicle tour. Enjoy a fun and safe ride through real untamed rainforests, get in touch with local villages, farms, plantations, dark mangrove forests, and discover an unspoilt beach.</p>
+        <p>The objective of these tours is to introduce the unseen side of Phuket province to all nature lovers and adventure seekers. All beginners from age 8 are welcome to join the ATV tours. Our ATV bikes are fully automatic, safe, and easy to operate. There is no prior riding experience needed to join our one-of-a-kind tour. After safety briefings and operations orientations, both beginners and experienced riders will be practicing on an easy track to get a feel for the ATV bikes. Once used to the bikes everyone will be ready to hit the tracks, supervised by professional staff and guides.</p>
+        <p>You can choose from 1 or 2 hours of ATV riding. We also offer much more! Combine an ATV program with other activities, such as the challenging rope bridge with the flying fox and endure the rapids with white water rafting.</p>
+        <p>Our ATV tour is an ideal activity for anyone and any sunny or rainy day.</p>
+      </div>
   </div>
 </section>
 
@@ -65,7 +95,7 @@
           Pick from curated ATV experiences designed for families, thrill seekers, and seasoned riders.
         </p>
       </div>
-      <div class="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 dark:bg-blue-900/40 dark:text-blue-200">
+      <div class="rounded-full bg-[#D5F0C1] px-4 py-2 text-sm font-medium text-[#35605A]">
         {{ program_count }} adventures available
       </div>
     </div>
@@ -80,21 +110,21 @@
           {% else %}
           <img src="{% static 'image/atv.png' %}" alt="{{ card.program.name }}" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105">
           {% endif %}
-          <span class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 shadow dark:bg-emerald-900/40 dark:text-emerald-200">
+          <span class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-[#D5F0C1] px-3 py-1 text-xs font-semibold text-[#35605A] shadow">
             <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
             Available
           </span>
         </div>
         <div class="flex flex-1 flex-col gap-4 px-6 py-6">
           <div>
-            <h3 class="text-xl font-semibold text-gray-900 transition group-hover:text-blue-600 dark:text-white">{{ card.program.name }}</h3>
+            <h3 class="text-xl font-semibold text-gray-900 transition group-hover:text-[#80BCBD]">{{ card.program.name }}</h3>
             {% if card.program.duration_minutes %}
             <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration: {{ card.program.duration_minutes }} minutes</p>
             {% endif %}
             <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ card.program.description|default:"Explore Phuket’s lush trails with an expert lead guide."|truncatewords:28 }}</p>
           </div>
 
-          <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+          <div class="rounded-2xl border border-[#D5F0C1] bg-[#F9F7C9] p-4">
             <div class="grid gap-3 md:grid-cols-2">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Rider</p>
@@ -112,10 +142,10 @@
           <div class="mt-auto flex items-center justify-between">
             <div>
               <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Starting from</p>
-              <p class="text-2xl font-bold text-blue-600 dark:text-blue-300">{% if card.starting_price %}{{ card.starting_price|floatformat:0 }} THB{% else %}Contact us{% endif %}</p>
+              <p class="text-2xl font-bold text-[#35605A]">{% if card.starting_price %}{{ card.starting_price|floatformat:0 }} THB{% else %}Contact us{% endif %}</p>
             </div>
-            <a href="{% url 'booking-page' %}#packages" class="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700">
-              Book now
+            <a href="{% url 'program-detail' card.program.code %}" class="inline-flex items-center rounded-full bg-[#80BCBD] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#80BCBD]/40 transition hover:bg-[#6AA4A5] focus:outline-none focus:ring-4 focus:ring-[#AAD9BB]">
+              View details
             </a>
           </div>
         </div>
@@ -123,10 +153,40 @@
       {% endfor %}
     </div>
     {% else %}
-    <p class="text-gray-500 dark:text-gray-400">New adventures are coming soon. In the meantime, <a href="{% url 'contact-page' %}" class="text-blue-600 dark:text-blue-400 underline">contact our team</a> for a custom ride.</p>
+    <p class="text-gray-500">New adventures are coming soon. In the meantime, <a href="{% url 'contact-page' %}" class="underline text-[#80BCBD]">contact our team</a> for a custom ride.</p>
     {% endif %}
   </div>
 </section>
+
+<section class="bg-white dark:bg-gray-950">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mb-10 text-center">
+      <span class="inline-flex items-center gap-2 rounded-full bg-[#AAD9BB]/40 px-4 py-1 text-sm font-medium text-[#35605A]">Why ride with us</span>
+      <h2 class="mt-4 text-3xl font-bold text-gray-900">Adventure backed by safety and local knowledge</h2>
+      <p class="mt-3 text-gray-600">We design every tour to balance thrill and comfort so families, first-timers, and seasoned riders all feel at home on the trail.</p>
+    </div>
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <article class="rounded-3xl border border-[#D5F0C1] bg-white p-6 shadow-lg shadow-[#D5F0C1]/40">
+        <h3 class="text-lg font-semibold text-gray-900">Curated rainforest routes</h3>
+        <p class="mt-3 text-sm text-gray-600">Loop through dense jungle, rubber plantations, mangroves, and hidden beaches mapped by our local scouts.</p>
+      </article>
+      <article class="rounded-3xl border border-[#AAD9BB] bg-white p-6 shadow-lg shadow-[#AAD9BB]/40">
+        <h3 class="text-lg font-semibold text-gray-900">Premium automatic ATVs</h3>
+        <p class="mt-3 text-sm text-gray-600">Easy-to-ride 4x4 bikes inspected daily, fitted with splash guards, front storage, and safety gear in every size.</p>
+      </article>
+      <article class="rounded-3xl border border-[#80BCBD] bg-white p-6 shadow-lg shadow-[#80BCBD]/40">
+        <h3 class="text-lg font-semibold text-gray-900">Pick-up and add-on options</h3>
+        <p class="mt-3 text-sm text-gray-600">Bundle transfers, escort riders, flying fox, or rafting so your group can customise the perfect day out.</p>
+      </article>
+      <article class="rounded-3xl border border-[#F9F7C9] bg-white p-6 shadow-lg shadow-[#F9F7C9]/40">
+        <h3 class="text-lg font-semibold text-gray-900">Guides that feel like friends</h3>
+        <p class="mt-3 text-sm text-gray-600">Our bilingual crew shares trail stories, snaps photos, and keeps every rider confident from start to finish.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
 
 <section class="relative overflow-hidden">
   <div class="absolute inset-x-0 top-0 -z-10 flex justify-center">
@@ -134,11 +194,11 @@
   </div>
   <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
     <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-white px-10 py-12 shadow-2xl shadow-blue-200/40 transition hover:shadow-blue-300/40 dark:border-blue-500/30 dark:bg-gray-900 dark:shadow-blue-900/30">
-      <div class="absolute -left-24 top-1/2 hidden h-40 w-40 -translate-y-1/2 rounded-full bg-blue-500/30 blur-3xl md:block"></div>
-      <div class="absolute -right-20 top-1/2 hidden h-36 w-36 -translate-y-1/2 rounded-full bg-purple-500/30 blur-3xl md:block"></div>
+      <div class="absolute -left-24 top-1/2 hidden h-40 w-40 -translate-y-1/2 rounded-full bg-[#AAD9BB]/50 blur-3xl md:block"></div>
+      <div class="absolute -right-20 top-1/2 hidden h-36 w-36 -translate-y-1/2 rounded-full bg-[#F9F7C9]/70 blur-3xl md:block"></div>
       <div class="relative flex flex-col items-center justify-between gap-8 text-center text-gray-900 dark:text-white sm:flex-row sm:text-left">
         <div class="space-y-3 max-w-2xl">
-          <span class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">
+          <span class="inline-flex items-center gap-2 rounded-full bg-[#AAD9BB]/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-[#35605A]">
             Need a hand?
           </span>
           <h3 class="text-3xl font-bold">Need help choosing your ride?</h3>
@@ -146,7 +206,7 @@
             Our guides can match you with the right trail in minutes. Reach out and plan your next adventure before slots fill up.
           </p>
         </div>
-        <a href="{% url 'contact-page' %}" class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/40 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-700">
+        <a href="{% url 'contact-page' %}" class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#80BCBD] via-[#AAD9BB] to-[#D5F0C1] px-8 py-3 text-sm font-semibold text-[#1F3B3B] shadow-lg shadow-[#AAD9BB]/40 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#F9F7C9]">
           Get in touch
           <svg class="ms-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />

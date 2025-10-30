@@ -141,6 +141,55 @@ def contact(request: HttpRequest) -> HttpResponse:
     return render(request, "myapp/contact.html", context)
 
 
+def program_detail(request: HttpRequest, code: str) -> HttpResponse:
+    program = get_object_or_404(
+        Program.objects.prefetch_related("rates", "images"), code=code, active=True
+    )
+
+    rate_map: Dict[Tuple[str, str], ProgramRate] = {
+        (rate.participant_type, rate.age_group): rate for rate in program.rates.all()
+    }
+
+    def _split_lines(value: str) -> List[str]:
+        return [line.strip() for line in value.splitlines() if line.strip()]
+
+    pricing_table: List[Dict[str, Any]] = []
+    for participant in ProgramRate.Participant.values:
+        row = {
+            "label": ProgramRate.Participant(participant).label,
+            "entries": [],
+        }
+        for age in ProgramRate.AgeGroup.values:
+            rate = rate_map.get((participant, age))
+            row["entries"].append(
+                {
+                    "label": ProgramRate.AgeGroup(age).label,
+                    "price": rate.price if rate else None,
+                }
+            )
+        pricing_table.append(row)
+
+    primary = program.primary_image()
+    gallery = program.images.all()
+    if primary is not None:
+        gallery = gallery.exclude(pk=primary.pk)
+
+    context = {
+        "program": program,
+        "primary_image": primary,
+        "gallery": gallery,
+        "itinerary": _split_lines(program.itinerary),
+        "schedule_lines": _split_lines(program.schedule_details),
+        "includes": _split_lines(program.tour_includes),
+        "excludes": _split_lines(program.tour_excludes),
+        "notes": _split_lines(program.tour_notes),
+        "pricing_notes": _split_lines(program.pricing_notes),
+        "pricing_table": pricing_table,
+    }
+
+    return render(request, "myapp/program_detail.html", context)
+
+
 def _build_program_entries() -> Tuple[List[Dict[str, Any]], Dict[int, Dict[str, Any]]]:
     programs_qs = Program.objects.filter(active=True).prefetch_related("rates", "images")
     program_entries: List[Dict[str, Any]] = []
@@ -758,8 +807,13 @@ def addProgram(request: HttpRequest) -> HttpResponse:
         "duration_minutes": "60",
         "description": "",
         "active": True,
+        "itinerary": "",
+        "schedule_details": "",
+        "tour_includes": "",
+        "tour_excludes": "",
+        "tour_notes": "",
+        "pricing_notes": "",
     }
-    rate_values: Dict[str, str] = {field["field"]: "" for field in rate_fields}
     for field in rate_fields:
         field["value"] = ""
     errors: List[str] = []
@@ -772,6 +826,12 @@ def addProgram(request: HttpRequest) -> HttpResponse:
         duration_raw = data.get("duration_minutes", "60").strip()
         description = data.get("description", "").strip()
         active = _parse_bool(data.get("active"), default=True)
+        itinerary = data.get("itinerary", "").strip()
+        schedule_details = data.get("schedule_details", "").strip()
+        tour_includes = data.get("tour_includes", "").strip()
+        tour_excludes = data.get("tour_excludes", "").strip()
+        tour_notes = data.get("tour_notes", "").strip()
+        pricing_notes = data.get("pricing_notes", "").strip()
 
         form_values.update(
             {
@@ -780,6 +840,12 @@ def addProgram(request: HttpRequest) -> HttpResponse:
                 "duration_minutes": duration_raw,
                 "description": description,
                 "active": active,
+                "itinerary": itinerary,
+                "schedule_details": schedule_details,
+                "tour_includes": tour_includes,
+                "tour_excludes": tour_excludes,
+                "tour_notes": tour_notes,
+                "pricing_notes": pricing_notes,
             }
         )
 
@@ -802,7 +868,6 @@ def addProgram(request: HttpRequest) -> HttpResponse:
         parsed_rates: List[Dict[str, Any]] = []
         for field in rate_fields:
             value = data.get(field["field"], "").strip()
-            rate_values[field["field"]] = value
             field["value"] = value
             if value == "":
                 continue
@@ -832,6 +897,12 @@ def addProgram(request: HttpRequest) -> HttpResponse:
                 duration_minutes=duration_minutes,
                 description=description,
                 active=bool(active),
+                itinerary=itinerary,
+                schedule_details=schedule_details,
+                tour_includes=tour_includes,
+                tour_excludes=tour_excludes,
+                tour_notes=tour_notes,
+                pricing_notes=pricing_notes,
             )
 
             for rate in parsed_rates:
@@ -857,8 +928,13 @@ def addProgram(request: HttpRequest) -> HttpResponse:
                 "duration_minutes": "60",
                 "description": "",
                 "active": True,
+                "itinerary": "",
+                "schedule_details": "",
+                "tour_includes": "",
+                "tour_excludes": "",
+                "tour_notes": "",
+                "pricing_notes": "",
             })
-            rate_values = {field["field"]: "" for field in rate_fields}
             for field in rate_fields:
                 field["value"] = ""
 

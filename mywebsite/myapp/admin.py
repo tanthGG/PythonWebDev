@@ -33,6 +33,34 @@ class ProgramAdmin(admin.ModelAdmin):
     search_fields = ("code", "name")
     readonly_fields = ("primary_image_preview",)
     inlines = [ProgramRateInline, ProgramImageInline]
+    fieldsets = (
+        (
+            "Program",
+            {
+                "fields": (
+                    "code",
+                    "name",
+                    "duration_minutes",
+                    "description",
+                    "active",
+                    "primary_image_preview",
+                )
+            },
+        ),
+        (
+            "Details",
+            {
+                "fields": (
+                    "itinerary",
+                    "schedule_details",
+                    "tour_includes",
+                    "tour_excludes",
+                    "tour_notes",
+                    "pricing_notes",
+                )
+            },
+        ),
+    )
 
     def primary_image_preview(self, obj):
         image = obj.primary_image()

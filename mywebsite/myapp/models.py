@@ -52,6 +52,12 @@ class Program(models.Model):
     duration_minutes = models.PositiveIntegerField(default=60)
     description = models.TextField(blank=True)
     active = models.BooleanField(default=True)
+    itinerary = models.TextField(blank=True)
+    schedule_details = models.TextField(blank=True)
+    pricing_notes = models.TextField(blank=True)
+    tour_includes = models.TextField(blank=True)
+    tour_excludes = models.TextField(blank=True)
+    tour_notes = models.TextField(blank=True)
 
     class Meta:
         ordering = ["code"]

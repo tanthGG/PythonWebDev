@@ -1,0 +1,183 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<section class="bg-gradient-to-br from-[#F9F7C9] via-white to-[#D5F0C1]/60">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:items-start">
+      <div class="space-y-5">
+        <span class="inline-flex items-center gap-2 rounded-full bg-[#AAD9BB]/40 px-4 py-1 text-sm font-medium text-[#35605A]">ATV Adventure Program</span>
+        <h1 class="text-4xl font-extrabold text-[#1F3B3B] sm:text-5xl">{{ program.name }}</h1>
+        <p class="text-base leading-7 text-[#3B4F4F]">{{ program.description|default:"Explore Phuket’s lush trails and secret viewpoints with our certified guides." }}</p>
+        <div class="flex flex-wrap gap-3 text-sm">
+          <span class="inline-flex items-center gap-2 rounded-full bg-[#AAD9BB] px-4 py-1 font-semibold text-[#1F3B3B]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
+            Duration: {{ program.duration_minutes }} minutes
+          </span>
+          <span class="inline-flex items-center gap-2 rounded-full bg-[#D5F0C1] px-4 py-1 font-semibold text-[#1F3B3B]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 9-4 9 4-9 4-9-4zm0 6 9 4 9-4"/></svg>
+            Suitable for ages 8+
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="{% url 'booking-page' %}#packages" class="inline-flex items-center rounded-full bg-[#80BCBD] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#80BCBD]/40 transition hover:bg-[#6AA4A5] focus:outline-none focus:ring-4 focus:ring-[#AAD9BB]">
+            Book this program
+          </a>
+          <a href="{% url 'contact-page' %}" class="inline-flex items-center rounded-full border border-[#AAD9BB] px-6 py-3 text-sm font-semibold text-[#35605A] transition hover:bg-[#AAD9BB]/40">
+            Ask a question
+          </a>
+        </div>
+      </div>
+      <div class="relative overflow-hidden rounded-3xl border border-[#AAD9BB] bg-white shadow-xl shadow-[#AAD9BB]/40">
+        {% if primary_image %}
+        <img src="{{ primary_image.image.url }}" alt="{{ primary_image.alt_text|default:program.name }}" class="h-full w-full object-cover" />
+        {% else %}
+        <img src="{% static 'image/atv.png' %}" alt="ATV" class="h-full w-full object-cover" />
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-white">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 space-y-16">
+    {% if itinerary %}
+    <div class="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:items-start">
+      <div>
+        <h2 class="text-2xl font-bold text-[#1F3B3B]">Itinerary</h2>
+        <p class="mt-2 text-sm text-[#3B4F4F]">What to expect from start to finish. We keep the pace flexible so every rider feels confident.</p>
+      </div>
+      <ul class="space-y-3 rounded-3xl border border-[#AAD9BB] bg-[#F9F7C9]/60 px-6 py-6 text-sm text-[#1F3B3B] shadow-lg shadow-[#AAD9BB]/20">
+        {% for line in itinerary %}
+        <li class="flex gap-3">
+          <span class="mt-1 h-2 w-2 rounded-full bg-[#35605A]"></span>
+          <span>{{ line }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if schedule_lines %}
+    <div class="rounded-3xl border border-[#AAD9BB] bg-white shadow-xl shadow-[#AAD9BB]/30">
+      <div class="border-b border-[#AAD9BB] px-6 py-4">
+        <h2 class="text-2xl font-bold text-[#1F3B3B]">Tour schedule & transfers</h2>
+      </div>
+      <div class="grid gap-6 px-6 py-6 md:grid-cols-[0.35fr_1fr]">
+        <div class="space-y-2">
+          <div class="rounded-2xl bg-[#D5F0C1] px-4 py-3 text-sm font-semibold text-[#1F3B3B]">
+            {% with first=schedule_lines|first %}
+            {{ first }}
+            {% endwith %}
+          </div>
+        </div>
+        <ul class="space-y-3 text-sm text-[#3B4F4F]">
+          {% for line in schedule_lines|slice:"1:" %}
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-[#80BCBD]"></span>
+            <span>{{ line }}</span>
+          </li>
+          {% empty %}
+          <li class="text-sm text-[#3B4F4F]">Contact us to customise your schedule.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="rounded-3xl border border-[#AAD9BB] bg-white shadow-xl shadow-[#AAD9BB]/30">
+      <div class="border-b border-[#AAD9BB] px-6 py-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 class="text-2xl font-bold text-[#1F3B3B]">Pricing</h2>
+          <p class="text-sm text-[#3B4F4F]">Rates are per person and include safety gear and orientation.</p>
+        </div>
+      </div>
+      <div class="grid gap-6 px-6 py-6 lg:grid-cols-2">
+        {% for row in pricing_table %}
+        <div class="rounded-2xl border border-[#D5F0C1] bg-[#F9F7C9]/80 p-5 shadow-sm">
+          <h3 class="text-lg font-semibold text-[#1F3B3B]">{{ row.label }}</h3>
+          <dl class="mt-4 space-y-2 text-sm text-[#3B4F4F]">
+            {% for entry in row.entries %}
+            <div class="flex items-center justify-between gap-4">
+              <dt class="font-medium">{{ entry.label }}</dt>
+              <dd class="text-base font-semibold text-[#35605A]">
+                {% if entry.price %}
+                  {{ entry.price|floatformat:0 }} THB
+                {% else %}
+                  —
+                {% endif %}
+              </dd>
+            </div>
+            {% endfor %}
+          </dl>
+        </div>
+        {% endfor %}
+      </div>
+      {% if pricing_notes %}
+      <div class="border-t border-[#AAD9BB] px-6 py-5">
+        <ul class="space-y-2 text-sm text-[#3B4F4F]">
+          {% for line in pricing_notes %}
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-[#80BCBD]"></span><span>{{ line }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="rounded-3xl border border-[#AAD9BB] bg-white p-6 shadow-lg shadow-[#AAD9BB]/20">
+        <h2 class="text-xl font-bold text-[#1F3B3B]">Tour includes</h2>
+        <ul class="mt-4 space-y-2 text-sm text-[#3B4F4F]">
+          {% for line in includes %}
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-[#80BCBD]"></span><span>{{ line }}</span></li>
+          {% empty %}
+          <li>No additional inclusions listed.</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="rounded-3xl border border-[#F9F7C9] bg-white p-6 shadow-lg shadow-[#F9F7C9]/30">
+        <h2 class="text-xl font-bold text-[#1F3B3B]">Tour excludes</h2>
+        <ul class="mt-4 space-y-2 text-sm text-[#3B4F4F] text-left">
+          {% for line in excludes %}
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-[#F9F7C9] border border-[#D5F0C1]"></span><span>{{ line }}</span></li>
+          {% empty %}
+          <li>Everything needed for a great ride is included.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    {% if notes %}
+    <div class="rounded-3xl border border-[#AAD9BB] bg-white p-6 shadow-lg shadow-[#AAD9BB]/20">
+      <h2 class="text-xl font-bold text-[#1F3B3B]">Please note</h2>
+      <ul class="mt-4 space-y-2 text-sm text-[#3B4F4F]">
+        {% for line in notes %}
+        <li class="flex gap-3">
+          <span class="mt-1 h-2 w-2 rounded-full bg-[#35605A]"></span>
+          <span>{{ line }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if gallery %}
+<section class="bg-[#F9F7C9]/60">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-bold text-[#1F3B3B] mb-6">Gallery</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for image in gallery %}
+      <figure class="overflow-hidden rounded-2xl border border-[#D5F0C1] bg-white shadow-sm">
+        <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:program.name }}" class="h-48 w-full object-cover">
+      </figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock content %}

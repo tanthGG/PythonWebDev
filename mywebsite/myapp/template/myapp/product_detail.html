@@ -1,8 +1,10 @@
 {% extends 'myapp/base.html' %}
 
 {% block myheader %}
-  <h1 class="display-6 mb-2">{{ product.title }}</h1>
-  <p class="lead text-body-secondary mb-0">Detailed specifications and downloadable resources.</p>
+  <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h1 class="display-6 mb-2">{{ product.title }}</h1>
+    <p class="lead text-body-secondary mb-0">Detailed specifications and downloadable resources.</p>
+  </div>
 {% endblock myheader %}
 
 {% block content %}

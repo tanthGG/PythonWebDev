@@ -70,6 +70,38 @@
             <textarea id="description" name="description" rows="5" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Describe the trail, duration, highlights, and what riders should expect." required>{{ form_values.description }}</textarea>
           </div>
 
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="space-y-2">
+              <label for="itinerary" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Itinerary</label>
+              <textarea id="itinerary" name="itinerary" rows="6" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Use a new line for each bullet." >{{ form_values.itinerary }}</textarea>
+            </div>
+            <div class="space-y-2">
+              <label for="schedule_details" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Tour schedule & transfer info</label>
+              <textarea id="schedule_details" name="schedule_details" rows="6" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="List time slots and transfer notes.">{{ form_values.schedule_details }}</textarea>
+            </div>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="space-y-2">
+              <label for="tour_includes" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Tour includes</label>
+              <textarea id="tour_includes" name="tour_includes" rows="5" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="One item per line.">{{ form_values.tour_includes }}</textarea>
+            </div>
+            <div class="space-y-2">
+              <label for="tour_excludes" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Tour excludes</label>
+              <textarea id="tour_excludes" name="tour_excludes" rows="5" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="One item per line.">{{ form_values.tour_excludes }}</textarea>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="tour_notes" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Important notes</label>
+            <textarea id="tour_notes" name="tour_notes" rows="6" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="One note per line.">{{ form_values.tour_notes }}</textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label for="pricing_notes" class="text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">Pricing notes</label>
+            <textarea id="pricing_notes" name="pricing_notes" rows="4" class="block w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Add extra pricing details or transfer surcharges." >{{ form_values.pricing_notes }}</textarea>
+          </div>
+
           <div class="rounded-3xl border border-gray-200 bg-gray-50 px-5 py-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pricing</h3>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Enter per-person rates for each rider/passenger type. Leave blank if a combination is not offered.</p>

@@ -65,10 +65,10 @@
       </div>
 
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <a href="{% url 'home' %}" class="inline-flex items-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition hover:bg-blue-700">Go to home page</a>
+        <a href="{% url 'home' %}" class="inline-flex items-center rounded-full bg-[#80BCBD] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#80BCBD]/40 transition hover:bg-[#6AA4A5]">Go to home page</a>
         {% if user.is_staff or user.is_superuser %}
-        <a href="{% url 'admin-booking-create' %}" class="inline-flex items-center rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Create another booking</a>
-        <a href="{% url 'booking-list-page' %}" class="inline-flex items-center rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View all bookings</a>
+        <a href="{% url 'admin-booking-create' %}" class="inline-flex items-center rounded-full border border-[#AAD9BB] px-6 py-3 text-sm font-semibold text-[#35605A] transition hover:bg-[#AAD9BB]/40">Create another booking</a>
+        <a href="{% url 'booking-list-page' %}" class="inline-flex items-center rounded-full border border-[#AAD9BB] px-6 py-3 text-sm font-semibold text-[#35605A] transition hover:bg-[#AAD9BB]/40">View all bookings</a>
         {% endif %}
       </div>
     </div>

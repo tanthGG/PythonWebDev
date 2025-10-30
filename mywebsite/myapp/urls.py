@@ -18,6 +18,7 @@ urlpatterns = [
     path('editprofile/', editProfile, name="editprofile-page"),
     path('action/<int:cid>', actionPage, name="action-page"),
     path('programs/create/', addProgram, name="addprogram-page"),
+    path('programs/<slug:code>/', views.program_detail, name="program-detail"),
     path('users/manage/', views.user_management, name='user-management-page'),
     path('products/<int:pk>/', views.product_detail, name='product-detail'),
     path('products/', views.ProductListView.as_view(), name='product_list'),
