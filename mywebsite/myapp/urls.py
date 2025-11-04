@@ -13,6 +13,7 @@ urlpatterns = [
     path('booking/success/<int:booking_id>/', views.booking_success, name='booking-success'),
     path('showcontact/', showContact, name='showcontact-page'),
     path('bookings/manage/', views.showBookings, name='booking-list-page'),
+    path('staff/insights/', views.staff_insights, name='staff-insights'),
     path('register/', userRegist, name="register-page"),
     path('profile/', userProfile, name="profile-page"),
     path('editprofile/', editProfile, name="editprofile-page"),
@@ -22,6 +23,7 @@ urlpatterns = [
     path('users/manage/', views.user_management, name='user-management-page'),
     path('products/<int:pk>/', views.product_detail, name='product-detail'),
     path('products/', views.ProductListView.as_view(), name='product_list'),
+    path('staff/<int:staff_id>/feedback/', views.staff_feedback, name='staff-feedback'),
 
     path("ajax/user/detail/", views.UserDetailAjax.as_view(), name="ajax_user_detail"),
     path("ajax/user/create/", views.CreateUserAjax.as_view(), name="ajax_user_create"),

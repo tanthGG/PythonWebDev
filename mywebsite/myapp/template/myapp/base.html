@@ -44,7 +44,6 @@
     />
     <meta name="theme-color" content="#712cf9" />
 
-    <link href="pricing.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest" defer></script>
 
@@ -278,7 +277,8 @@
                 <li>
                   <a href="{% url 'contact-page' %}" class="block rounded-md px-3 py-1.5 {% if request.resolver_match.url_name == 'contact-page' %}text-[#35605A] md:px-0 md:py-0 md:text-[#35605A]{% else %}text-gray-700 transition hover:text-[#80BCBD] md:px-0 md:py-0{% endif %}">Contact</a>
                 </li>
-                {% if user.is_authenticated and user.profile.usertype == "admin" %}
+                {% if user.is_authenticated %}
+                  {% if user.is_staff or user.is_superuser or user.profile.usertype == "admin" %}
                 <li class="relative">
                       <button id="admin-menu-button" type="button" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[#35605A] transition hover:text-[#80BCBD] md:px-0 md:py-0">
                     Admin tools
@@ -313,6 +313,20 @@
                         </a>
                       </li>
                       <li>
+                        <a href="{% url 'staff-insights' %}" class="flex items-center gap-2 px-4 py-2 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#35605A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3h18" />
+                            <path d="M20 7H8" />
+                            <path d="M20 11H8" />
+                            <path d="M10 15H8" />
+                            <path d="M10 19H8" />
+                            <rect width="4" height="4" x="3" y="7" rx="1" />
+                            <rect width="4" height="4" x="3" y="13" rx="1" />
+                          </svg>
+                          Staff insights
+                        </a>
+                      </li>
+                      <li>
                         <a href="{% url 'addprogram-page' %}" class="flex items-center gap-2 px-4 py-2 transition hover:bg-gray-100 dark:hover:bg-gray-700">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#35605A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10" />
@@ -343,6 +357,7 @@
                     </ul>
                   </div>
                 </li>
+                  {% endif %}
                 {% endif %}
                 {% if user.is_authenticated %}
                 <li class="md:hidden">
@@ -367,6 +382,38 @@
         {% block myheader %}{% endblock myheader %}
       </header>
       
+
+      {% if messages %}
+      <div class="fixed left-1/2 top-24 z-50 w-full max-w-xl -translate-x-1/2 px-4">
+        <div class="space-y-3">
+          {% for message in messages %}
+          {% with tag=message.tags level=message.level_tag %}
+            {% if 'success' in tag %}
+              {% with alert_classes="p-4 text-green-800 border border-green-300 rounded-lg bg-green-50 shadow-sm dark:bg-gray-800 dark:text-green-400 dark:border-green-800" btn_primary="text-white bg-green-800 hover:bg-green-900 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" btn_secondary="text-green-800 bg-transparent border border-green-800 hover:bg-green-900 hover:text-white focus:ring-green-300 dark:text-green-400 dark:border-green-600 dark:hover:bg-green-600 dark:focus:ring-green-800" %}
+              {% include "myapp/partials/alert_message.html" %}
+              {% endwith %}
+            {% elif 'error' in tag or 'danger' in tag %}
+              {% with alert_classes="p-4 text-red-800 border border-red-300 rounded-lg bg-red-50 shadow-sm dark:bg-gray-800 dark:text-red-400 dark:border-red-800" btn_primary="text-white bg-red-800 hover:bg-red-900 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" btn_secondary="text-red-800 bg-transparent border border-red-800 hover:bg-red-900 hover:text-white focus:ring-red-300 dark:text-red-500 dark:border-red-600 dark:hover:bg-red-600 dark:focus:ring-red-800" %}
+              {% include "myapp/partials/alert_message.html" %}
+              {% endwith %}
+            {% elif 'warning' in tag %}
+              {% with alert_classes="p-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 shadow-sm dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800" btn_primary="text-white bg-yellow-800 hover:bg-yellow-900 focus:ring-yellow-300 dark:bg-yellow-300 dark:text-gray-800 dark:hover:bg-yellow-400 dark:focus:ring-yellow-800" btn_secondary="text-yellow-800 bg-transparent border border-yellow-800 hover:bg-yellow-900 hover:text-white focus:ring-yellow-300 dark:text-yellow-300 dark:border-yellow-300 dark:hover:text-gray-800 dark:hover:bg-yellow-300 dark:focus:ring-yellow-800" %}
+              {% include "myapp/partials/alert_message.html" %}
+              {% endwith %}
+            {% elif 'info' in tag %}
+              {% with alert_classes="p-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 shadow-sm dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" btn_primary="text-white bg-blue-800 hover:bg-blue-900 focus:ring-blue-200 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" btn_secondary="text-blue-800 bg-transparent border border-blue-800 hover:bg-blue-900 hover:text-white focus:ring-blue-200 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-600 dark:focus:ring-blue-800" %}
+              {% include "myapp/partials/alert_message.html" %}
+              {% endwith %}
+            {% else %}
+              {% with alert_classes="p-4 text-gray-800 border border-gray-300 rounded-lg bg-gray-50 shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300" btn_primary="text-white bg-gray-700 hover:bg-gray-800 focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-800" btn_secondary="text-gray-800 bg-transparent border border-gray-700 hover:bg-gray-800 hover:text-white focus:ring-gray-300 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-800" %}
+              {% include "myapp/partials/alert_message.html" %}
+              {% endwith %}
+            {% endif %}
+          {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
 
       <main>
         {% block content %}
@@ -402,51 +449,61 @@
       </footer>
     </div>
 
-    <script
-      src="https://getbootstrap.com/docs/5.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
-      class="astro-vvvwv3sm"
-    ></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide && typeof window.lucide.createIcons === 'function') {
           window.lucide.createIcons();
         }
 
+        document.querySelectorAll('[data-alert]').forEach((alertEl) => {
+          setTimeout(() => {
+            alertEl.classList.add('opacity-0', 'transition', 'duration-300');
+            setTimeout(() => alertEl.remove(), 320);
+          }, 6000);
+        });
+
+        document.querySelectorAll('[data-alert-dismiss]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const target = button.closest('[data-alert]');
+            if (target) {
+              target.remove();
+            }
+          });
+        });
+
         const adminButton = document.getElementById('admin-menu-button');
         const adminMenu = document.getElementById('admin-menu');
-        const caret = adminButton.querySelector('svg');
 
-        if (!adminButton || !adminMenu) {
-          return;
+        if (adminButton && adminMenu) {
+          const caret = adminButton.querySelector('svg');
+
+          const closeMenu = () => {
+            adminMenu.classList.add('hidden');
+            if (caret) {
+              caret.classList.remove('rotate-180');
+            }
+          };
+
+          adminButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            adminMenu.classList.toggle('hidden');
+            if (caret) {
+              caret.classList.toggle('rotate-180');
+            }
+          });
+
+          document.addEventListener('click', (event) => {
+            if (!adminMenu.contains(event.target) && !adminButton.contains(event.target)) {
+              closeMenu();
+            }
+          });
+
+          document.addEventListener('keyup', (event) => {
+            if (event.key === 'Escape') {
+              closeMenu();
+            }
+          });
         }
-
-        const closeMenu = () => {
-          adminMenu.classList.add('hidden');
-          if (caret) {
-            caret.classList.remove('rotate-180');
-          }
-        };
-
-        adminButton.addEventListener('click', (event) => {
-          event.stopPropagation();
-          adminMenu.classList.toggle('hidden');
-          if (caret) {
-            caret.classList.toggle('rotate-180');
-          }
-        });
-
-        document.addEventListener('click', (event) => {
-          if (!adminMenu.contains(event.target) && !adminButton.contains(event.target)) {
-            closeMenu();
-          }
-        });
-
-        document.addEventListener('keyup', (event) => {
-          if (event.key === 'Escape') {
-            closeMenu();
-          }
-        });
       });
     </script>
   </body>

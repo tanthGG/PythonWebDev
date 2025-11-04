@@ -117,6 +117,63 @@ class ProgramImage(models.Model):
         return f"{self.program.code} image #{self.pk}"
 
 
+class Staff(models.Model):
+    name = models.CharField(max_length=100)
+    nickname = models.CharField(max_length=60, blank=True)
+    role = models.CharField(max_length=120, blank=True)
+    years_experience = models.PositiveIntegerField(default=0)
+    bio = models.TextField(blank=True)
+    likes = models.TextField(blank=True)
+    dislikes = models.TextField(blank=True)
+    comment = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to="staff/", blank=True)
+    active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["display_order", "name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def likes_total(self) -> int:
+        if hasattr(self, "likes_count") and self.likes_count is not None:
+            return int(self.likes_count)
+        return self.feedback.filter(sentiment=StaffFeedback.Sentiment.LIKE).count()
+
+    def dislikes_total(self) -> int:
+        if hasattr(self, "dislikes_count") and self.dislikes_count is not None:
+            return int(self.dislikes_count)
+        return self.feedback.filter(sentiment=StaffFeedback.Sentiment.DISLIKE).count()
+
+    def latest_feedback_time(self):
+        if hasattr(self, "feedback_latest") and self.feedback_latest is not None:
+            return self.feedback_latest
+        latest = self.feedback.order_by("-updated_at").values_list("updated_at", flat=True).first()
+        return latest
+
+
+class StaffFeedback(models.Model):
+    class Sentiment(models.TextChoices):
+        LIKE = "like", "Like"
+        DISLIKE = "dislike", "Dislike"
+        NONE = "none", "No vote"
+
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="feedback")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="staff_feedback")
+    sentiment = models.CharField(max_length=10, choices=Sentiment.choices, default=Sentiment.NONE)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("staff", "user")
+        ordering = ["-updated_at"]
+
+    def __str__(self) -> str:
+        return f"{self.user} → {self.staff} ({self.sentiment})"
+
+
 class Addon(models.Model):
     code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=150)

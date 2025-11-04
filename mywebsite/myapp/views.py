@@ -7,16 +7,19 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, Iterable, List, Tuple
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum, Count
+from django.db.models import Q, Sum, Count, Avg, Max
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import ListView, View
+from django.urls import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import (
     Action,
@@ -29,6 +32,8 @@ from .models import (
     ProgramImage,
     ProgramRate,
     Profile,
+    Staff,
+    StaffFeedback,
     contactList,
 )
 
@@ -87,6 +92,7 @@ def _serialize_user(user: User) -> Dict[str, Any]:
 # Basic pages
 # ---------------------------------------------------------------------------
 
+@ensure_csrf_cookie
 def home(request: HttpRequest) -> HttpResponse:
     programs = Program.objects.filter(active=True).prefetch_related("rates", "images")
     program_cards: List[Dict[str, Any]] = []
@@ -112,15 +118,28 @@ def home(request: HttpRequest) -> HttpResponse:
             }
         )
 
+    staff_members = Staff.objects.filter(active=True)
+
     context = {
         "program_cards": program_cards,
         "program_count": len(program_cards),
+        "staff_members": staff_members,
     }
     return render(request, "myapp/home.html", context)
 
 
+@ensure_csrf_cookie
 def aboutUs(request: HttpRequest) -> HttpResponse:
-    return render(request, "myapp/aboutus.html")
+    staff_members = Staff.objects.filter(active=True)
+    staff_count = staff_members.count()
+    avg_experience = staff_members.aggregate(avg=Avg("years_experience"))["avg"] or 0
+
+    context = {
+        "staff_members": staff_members,
+        "staff_count": staff_count,
+        "avg_experience": avg_experience,
+    }
+    return render(request, "myapp/aboutus.html", context)
 
 
 def contact(request: HttpRequest) -> HttpResponse:
@@ -139,6 +158,53 @@ def contact(request: HttpRequest) -> HttpResponse:
             context["message"] = "The message has been received"
 
     return render(request, "myapp/contact.html", context)
+
+
+@login_required
+def staff_feedback(request: HttpRequest, staff_id: int) -> HttpResponse:
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    staff = get_object_or_404(Staff, pk=staff_id, active=True)
+    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or reverse("about-page")
+
+    updates: Dict[str, Any] = {}
+
+    sentiment = request.POST.get("sentiment")
+    if sentiment:
+        if sentiment not in StaffFeedback.Sentiment.values:
+            messages.error(request, "That feedback option is not available.")
+            return redirect(next_url)
+        updates["sentiment"] = sentiment
+
+    if "comment" in request.POST:
+        comment = (request.POST.get("comment") or "").strip()
+        if not comment:
+            messages.error(request, "Please enter a comment before submitting.")
+            return redirect(next_url)
+        updates["comment"] = comment
+
+    if not updates:
+        messages.info(request, "No changes were submitted.")
+        return redirect(next_url)
+
+    StaffFeedback.objects.update_or_create(
+        staff=staff,
+        user=request.user,
+        defaults=updates,
+    )
+
+    sentiment_value = updates.get("sentiment")
+    if sentiment_value == StaffFeedback.Sentiment.DISLIKE:
+        messages.success(request, "Thank you for letting us know. Our training team will review this right away.")
+    elif sentiment_value == StaffFeedback.Sentiment.LIKE:
+        messages.success(request, "Thanks! We love hearing when our guides make a great impression.")
+    elif "comment" in updates:
+        messages.success(request, "Thanks for sharing your thoughts about our guide.")
+    else:
+        messages.success(request, "Your feedback has been saved.")
+
+    return redirect(next_url)
 
 
 def program_detail(request: HttpRequest, code: str) -> HttpResponse:
@@ -552,6 +618,57 @@ def admin_booking_create(request: HttpRequest) -> HttpResponse:
     }
 
     return render(request, "myapp/booking.html", context)
+
+
+@login_required(login_url="/login")
+def staff_insights(request: HttpRequest) -> HttpResponse:
+    profile = _get_profile(request.user)
+    if not (
+        request.user.is_staff
+        or request.user.is_superuser
+        or (profile and profile.usertype == "admin")
+    ):
+        return HttpResponse("Forbidden", status=403)
+
+    comment_filter = ~Q(feedback__comment__isnull=True) & ~Q(feedback__comment__exact="")
+
+    staff_stats = (
+        Staff.objects.all()
+        .annotate(
+            likes_count=Count(
+                "feedback", filter=Q(feedback__sentiment=StaffFeedback.Sentiment.LIKE)
+            ),
+            dislikes_count=Count(
+                "feedback", filter=Q(feedback__sentiment=StaffFeedback.Sentiment.DISLIKE)
+            ),
+            comment_count=Count("feedback", filter=comment_filter),
+            latest_feedback=Max("feedback__created_at"),
+        )
+        .order_by("display_order", "name")
+    )
+
+    totals = StaffFeedback.objects.aggregate(
+        total_likes=Count("id", filter=Q(sentiment=StaffFeedback.Sentiment.LIKE)),
+        total_dislikes=Count("id", filter=Q(sentiment=StaffFeedback.Sentiment.DISLIKE)),
+        total_comments=Count("id", filter=~Q(comment__isnull=True) & ~Q(comment__exact="")),
+    )
+
+    feedback_qs = (
+        StaffFeedback.objects.select_related("staff", "user")
+        .exclude(comment__isnull=True)
+        .exclude(comment__exact="")
+        .order_by("-created_at")
+    )
+    paginator = Paginator(feedback_qs, 6)
+    page_number = request.GET.get("page")
+    recent_page = paginator.get_page(page_number)
+
+    context = {
+        "staff_stats": staff_stats,
+        "totals": totals,
+        "recent_feedback_page": recent_page,
+    }
+    return render(request, "myapp/staff_insights.html", context)
 
 
 def userLogin(request: HttpRequest) -> HttpResponse:

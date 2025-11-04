@@ -186,6 +186,111 @@
   </div>
 </section>
 
+{% if staff_members %}
+<section class="bg-gradient-to-br from-[#F9F7C9] via-white to-[#AAD9BB]/30">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-medium text-[#35605A] shadow-sm shadow-[#D5F0C1]/50">
+        Meet our crew
+      </span>
+      <h2 class="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl">Guides who know every trail</h2>
+      <p class="mt-3 text-gray-600">
+        From first briefing to the last viewpoint, our Phuket locals keep rides safe, fun, and packed with hidden discoveries.
+      </p>
+    </div>
+    <div class="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+      {% for staff in staff_members %}
+      <article class="flex h-full flex-col rounded-3xl border border-[#D5F0C1] bg-white/90 p-6 shadow-xl shadow-[#D5F0C1]/60 transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#AAD9BB]/50">
+        <div class="flex items-center gap-4">
+          {% if staff.avatar %}
+          <img src="{{ staff.avatar.url }}" alt="{{ staff.name }}" class="h-16 w-16 rounded-full object-cover ring-4 ring-[#F9F7C9]" />
+          {% else %}
+          <div class="flex h-16 w-16 items-center justify-center rounded-full bg-[#80BCBD] text-xl font-semibold text-white ring-4 ring-[#D5F0C1]">
+            {{ staff.nickname|default:staff.name|first|upper }}
+          </div>
+          {% endif %}
+          <div>
+            {% if staff.role %}
+            <p class="text-xs font-semibold uppercase tracking-wide text-[#35605A]">{{ staff.role }}</p>
+            {% endif %}
+            <h3 class="text-xl font-bold text-gray-900">{{ staff.name }}</h3>
+            {% if staff.nickname %}
+            <p class="text-sm text-gray-500">“{{ staff.nickname }}”</p>
+            {% endif %}
+            {% if staff.years_experience %}
+            <p class="mt-1 text-sm text-gray-500">{{ staff.years_experience }} years guiding</p>
+            {% endif %}
+          </div>
+        </div>
+        {% if staff.bio %}
+        <p class="mt-5 text-sm text-gray-600">{{ staff.bio }}</p>
+        {% endif %}
+        <div class="mt-6 space-y-4 text-sm text-gray-600">
+          {% if staff.likes %}
+          <div class="flex gap-3">
+            <span class="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-[#80BCBD]"></span>
+            <div>
+              <p class="font-semibold text-gray-900">Trail highlights</p>
+              <p class="mt-1 leading-relaxed">{{ staff.likes|linebreaksbr }}</p>
+            </div>
+          </div>
+          {% endif %}
+        {% if staff.dislikes %}
+        <div class="flex gap-3">
+          <span class="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-[#AAD9BB]"></span>
+          <div>
+            <p class="font-semibold text-gray-900">Keeps an eye on</p>
+            <p class="mt-1 leading-relaxed">{{ staff.dislikes|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% if user.is_authenticated %}
+      <div class="mt-6 border-t border-[#D5F0C1] pt-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Share your feedback</p>
+        <div class="mt-3 flex flex-wrap gap-3">
+          <form method="post" action="{% url 'staff-feedback' staff.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="sentiment" value="like">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#80BCBD] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#80BCBD]/40 transition hover:bg-[#6AA4A5] focus:outline-none focus:ring-2 focus:ring-[#AAD9BB]">
+              Like
+            </button>
+          </form>
+          <form method="post" action="{% url 'staff-feedback' staff.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="sentiment" value="dislike">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-full border border-[#F9F7C9] px-4 py-2 text-xs font-semibold text-[#7A7310] transition hover:bg-[#F9F7C9] focus:outline-none focus:ring-2 focus:ring-[#F9F7C9]">
+              Needs work
+            </button>
+          </form>
+        </div>
+        <form method="post" action="{% url 'staff-feedback' staff.id %}" class="mt-4 space-y-2">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <textarea name="comment" rows="3" maxlength="600" class="w-full resize-none rounded-2xl border border-[#D5F0C1] bg-white/80 px-3 py-2 text-sm text-gray-700 focus:border-[#80BCBD] focus:ring-[#80BCBD]" placeholder="Tell us how {{ staff.name }} made your ride memorable"></textarea>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-gray-500">Your note goes to our internal quality team only.</p>
+            <button type="submit" class="inline-flex items-center rounded-full bg-[#80BCBD] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#80BCBD]/40 transition hover:bg-[#6AA4A5] focus:outline-none focus:ring-2 focus:ring-[#AAD9BB]">
+              Send feedback
+            </button>
+          </div>
+        </form>
+      </div>
+      {% else %}
+      <p class="mt-6 rounded-2xl bg-[#AAD9BB]/30 px-4 py-3 text-xs text-[#35605A]">Log in to like or leave a private note about our crew.</p>
+      {% endif %}
+      {% if staff.comment %}
+      <p class="mt-6 rounded-2xl bg-[#F9F7C9] p-4 text-sm italic text-[#4D4700]">“{{ staff.comment }}”</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 
 
 <section class="relative overflow-hidden">
