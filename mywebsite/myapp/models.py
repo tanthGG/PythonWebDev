@@ -267,3 +267,33 @@ class BookingAddon(models.Model):
 
     def __str__(self) -> str:
         return f"{self.addon.code} x {self.quantity}"
+
+
+class Bike(models.Model):
+    number = models.PositiveIntegerField(unique=True)
+    nickname = models.CharField(max_length=80, blank=True)
+
+    class Meta:
+        ordering = ["number"]
+
+    def __str__(self) -> str:
+        label = f"ATV #{self.number}"
+        if self.nickname:
+            return f"{label} – {self.nickname}"
+        return label
+
+
+class BikeAssignment(models.Model):
+    bike = models.ForeignKey(Bike, on_delete=models.CASCADE, related_name="assignments")
+    date = models.DateField()
+    note = models.CharField(max_length=200, blank=True)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bike_assignments")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("bike", "date")
+        ordering = ["-date", "bike__number"]
+
+    def __str__(self) -> str:
+        return f"{self.bike} → {self.date.isoformat()}"

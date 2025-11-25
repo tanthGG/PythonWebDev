@@ -1,0 +1,60 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+<section class="bg-gradient-to-br from-white via-[#F9F7C9] to-[#D5F0C1]">
+  <div class="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
+    <div class="rounded-3xl border border-[#D5F0C1] bg-white/90 p-6 shadow-xl shadow-[#D5F0C1]/50">
+      <div class="flex flex-col gap-2">
+        <p class="text-xs font-semibold uppercase tracking-widest text-[#35605A]">fleet records</p>
+        <h1 class="text-3xl font-bold text-[#173737]">Assignment history</h1>
+        <p class="text-sm text-[#3B4F4F]">Filter the log to see which bikes were allocated on a specific day or track usage of a single ATV.</p>
+      </div>
+      <form method="get" class="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+        <label class="text-sm font-semibold text-[#173737]">
+          Filter by date
+          <input type="date" name="filter_date" value="{{ filter_date_value }}" class="mt-1 w-full rounded-xl border border-[#D5F0C1] px-3 py-2 focus:border-[#80BCBD] focus:outline-none focus:ring-2 focus:ring-[#80BCBD]">
+        </label>
+        <label class="text-sm font-semibold text-[#173737]">
+          Filter by bike
+          <select name="filter_bike" class="mt-1 w-full rounded-xl border border-[#D5F0C1] px-3 py-2 focus:border-[#80BCBD] focus:outline-none focus:ring-2 focus:ring-[#80BCBD]">
+            <option value="">All bikes</option>
+            {% for bike in bikes %}
+            <option value="{{ bike.id }}" {% if filter_bike_value == bike.id|stringformat:'s' %}selected{% endif %}>ATV #{{ bike.number }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="rounded-full bg-[#35605A] px-6 py-3 text-sm font-semibold text-white shadow hover:bg-[#2b4d48]">Apply filters</button>
+      </form>
+    </div>
+
+    <div class="mt-8 overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow">
+      <table class="min-w-full divide-y divide-[#E2E8F0] text-sm">
+        <thead class="bg-[#F9FAFB] text-left text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+          <tr>
+            <th class="px-4 py-3">Date</th>
+            <th class="px-4 py-3">Bike</th>
+            <th class="px-4 py-3">Assigned by</th>
+            <th class="px-4 py-3">Created</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F1F5F9] text-[#0f172a]">
+          {% for assignment in assignment_log %}
+          <tr>
+            <td class="px-4 py-3 font-medium">{{ assignment.date|date:"d M Y" }}</td>
+            <td class="px-4 py-3">ATV #{{ assignment.bike.number }}</td>
+            <td class="px-4 py-3">{{ assignment.assigned_by.get_full_name|default:assignment.assigned_by.username }}</td>
+            <td class="px-4 py-3 text-xs text-[#475569]">{{ assignment.created_at|date:"d M Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="px-4 py-6 text-center text-sm text-[#475569]">No assignments match the filters.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock content %}

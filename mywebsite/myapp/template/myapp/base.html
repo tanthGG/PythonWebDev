@@ -150,77 +150,6 @@
       </symbol>
     </svg>
 
-    <!-- Theme toggle -->
-    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-      <button
-        class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-        id="bd-theme"
-        type="button"
-        aria-expanded="false"
-        data-bs-toggle="dropdown"
-        aria-label="Toggle theme (auto)"
-      >
-        <svg class="bi my-1 theme-icon-active" aria-hidden="true">
-          <use href="#circle-half"></use>
-        </svg>
-        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-      </button>
-
-      <ul
-        class="dropdown-menu dropdown-menu-end shadow"
-        aria-labelledby="bd-theme-text"
-      >
-        <li>
-          <button
-            type="button"
-            class="dropdown-item d-flex align-items-center"
-            data-bs-theme-value="light"
-            aria-pressed="false"
-          >
-            <svg class="bi me-2 opacity-50" aria-hidden="true">
-              <use href="#sun-fill"></use>
-            </svg>
-            Light
-            <svg class="bi ms-auto d-none" aria-hidden="true">
-              <use href="#check2"></use>
-            </svg>
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="dropdown-item d-flex align-items-center"
-            data-bs-theme-value="dark"
-            aria-pressed="false"
-          >
-            <svg class="bi me-2 opacity-50" aria-hidden="true">
-              <use href="#moon-stars-fill"></use>
-            </svg>
-            Dark
-            <svg class="bi ms-auto d-none" aria-hidden="true">
-              <use href="#check2"></use>
-            </svg>
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="dropdown-item d-flex align-items-center active"
-            data-bs-theme-value="auto"
-            aria-pressed="true"
-          >
-            <svg class="bi me-2 opacity-50" aria-hidden="true">
-              <use href="#circle-half"></use>
-            </svg>
-            Auto
-            <svg class="bi ms-auto d-none" aria-hidden="true">
-              <use href="#check2"></use>
-            </svg>
-          </button>
-        </li>
-      </ul>
-    </div>
-
     <!-- Secondary symbol sprite -->
     
       <symbol id="check" viewBox="0 0 16 16">
@@ -324,6 +253,32 @@
                             <rect width="4" height="4" x="3" y="13" rx="1" />
                           </svg>
                           Staff insights
+                        </a>
+                      </li>
+                      <li>
+                        <a href="{% url 'bike-usage-page' %}" class="flex items-center gap-2 px-4 py-2 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#35605A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="8" x="2" y="8" rx="2" />
+                            <path d="M6 16v2" />
+                            <path d="M18 16v2" />
+                            <path d="M6 20h12" />
+                            <path d="M8 12h0" />
+                            <path d="M12 12h0" />
+                            <path d="M16 12h0" />
+                          </svg>
+                          Fleet planner
+                        </a>
+                      </li>
+                      <li>
+                        <a href="{% url 'bike-usage-history' %}" class="flex items-center gap-2 px-4 py-2 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#35605A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 5h18" />
+                            <path d="M3 19h18" />
+                            <path d="M5 9h14" />
+                            <path d="M5 13h6" />
+                            <path d="M5 17h6" />
+                          </svg>
+                          Fleet history
                         </a>
                       </li>
                       <li>

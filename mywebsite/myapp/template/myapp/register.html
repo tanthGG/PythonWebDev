@@ -17,58 +17,122 @@
       </div>
       {% endif %}
 
-      <form method="post" action="" class="space-y-8">
+      <form method="post" action="" class="space-y-8 max-w-3xl">
         {% csrf_token %}
 
-        <div class="grid md:grid-cols-2 md:gap-6">
-          <div class="relative z-0 w-full group">
-            <input type="text" name="firstname" id="firstname" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="firstname" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">First name</label>
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label for="firstname" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">First name</label>
+            <input type="text" name="firstname" id="firstname" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400" placeholder="Put in your Firstname here." required />
           </div>
-          <div class="relative z-0 w-full group">
-            <input type="text" name="lastname" id="lastname" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="lastname" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Last name</label>
-          </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 md:gap-6">
-          <div class="relative z-0 w-full group">
-            <input type="text" name="username" id="username" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="username" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Username</label>
-          </div>
-          <div class="relative z-0 w-full group">
-            <input type="email" name="email" id="email" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="email" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Email address</label>
+          <div>
+            <label for="lastname" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Last name</label>
+            <input type="text" name="lastname" id="lastname" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400" placeholder="Put in your Lastname here." required />
           </div>
         </div>
 
-        <div class="grid md:grid-cols-2 md:gap-6">
-          <div class="relative z-0 w-full group">
-            <input type="password" name="password" id="password" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="password" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Password</label>
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label for="username" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Username</label>
+            <input type="text" name="username" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Put in your Username here." required />
           </div>
-          <div class="relative z-0 w-full group">
-            <input type="password" name="repassword" id="repassword" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="repassword" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Confirm password</label>
-          </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 md:gap-6">
-          <div class="relative z-0 w-full group">
-            <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " />
-            <label for="phone" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Phone number (123-456-7890)</label>
-          </div>
-          <div class="relative z-0 w-full group">
-            <input type="number" name="age" id="age" min="1" max="120" class="peer block w-full border-b-2 border-l-0 border-r-0 border-t-0 border-solid border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" placeholder=" " required />
-            <label for="age" class="absolute top-3 -z-10 origin-[0] transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 peer-focus:dark:text-blue-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400">Age</label>
+          <div>
+            <label for="email" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Email address</label>
+            <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Put in your email here." required />
           </div>
         </div>
 
-        <button type="submit" class="w-full sm:w-auto rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label for="password" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Password</label>
+            <input type="password" name="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="••••••••" required />
+          </div>
+          <div>
+            <label for="repassword" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Confirm password</label>
+            <input type="password" name="repassword" id="repassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="••••••••" required />
+          </div>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label for="phone" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Phone number</label>
+            <div class="relative flex w-full shadow-xs rounded-lg">
+              <button id="dropdown-phone-button" type="button" class="inline-flex items-center shrink-0 text-gray-700 bg-gray-100 border border-gray-300 border-r-0 hover:bg-white hover:text-gray-900 focus:ring-2 focus:ring-blue-200 font-medium rounded-l-lg text-sm px-4 py-2.5 focus:outline-none">
+                <span id="selected-phone-flag" class="mr-1.5">🇹🇭</span>
+                <span id="selected-phone-code">+66</span>
+                <svg class="w-4 h-4 ml-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+                </svg>
+              </button>
+              <div id="dropdown-phone" class="absolute left-0 top-full mt-2 hidden bg-white border border-gray-200 rounded-lg shadow-lg w-56 z-20">
+                <ul class="p-2 text-sm text-gray-700 font-medium">
+                  <li><button type="button" data-flag="🇹🇭" data-code="+66" data-format="3-3-4" class="inline-flex items-center w-full p-2 hover:bg-gray-100 rounded-md code-option">🇹🇭 Thailand (+66)</button></li>
+                  <li><button type="button" data-flag="🇺🇸" data-code="+1" data-format="3-3-4" class="inline-flex items-center w-full p-2 hover:bg-gray-100 rounded-md code-option">🇺🇸 United States (+1)</button></li>
+                  <li><button type="button" data-flag="🇬🇧" data-code="+44" data-format="3-4-4" class="inline-flex items-center w-full p-2 hover:bg-gray-100 rounded-md code-option">🇬🇧 United Kingdom (+44)</button></li>
+                  <li><button type="button" data-flag="🇦🇺" data-code="+61" data-format="4-3-3" class="inline-flex items-center w-full p-2 hover:bg-gray-100 rounded-md code-option">🇦🇺 Australia (+61)</button></li>
+                  <li><button type="button" data-flag="🇨🇦" data-code="+1" data-format="3-3-4" class="inline-flex items-center w-full p-2 hover:bg-gray-100 rounded-md code-option">🇨🇦 Canada (+1)</button></li>
+                </ul>
+              </div>
+              <input type="hidden" name="phone_code" id="phone_code" value="+66" data-format="3-3-4">
+              <label for="phone" class="sr-only">Phone number</label>
+              <input type="tel" name="phone" id="phone" inputmode="numeric" pattern="[0-9]*" class="flex-1 z-10 bg-gray-50 border border-gray-300 border-l-0 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Enter phone number" />
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Your number will be saved with the selected country code.</p>
+          </div>
+          <div>
+            <label for="age" class="block mb-2.5 text-sm font-medium text-gray-900 dark:text-gray-200">Age</label>
+            <input type="number" name="age" id="age" min="1" max="120" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 shadow-sm placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="24" required />
+          </div>
+        </div>
+
+        <button type="submit" class="text-white bg-blue-700 border border-transparent hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 shadow-sm font-medium leading-5 rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
           Submit
         </button>
       </form>
     </div>
   </div>
 </section>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const codeSelect = document.getElementById('phone_code');
+    const dropdownButton = document.getElementById('dropdown-phone-button');
+    const dropdownMenu = document.getElementById('dropdown-phone');
+    const selectedFlag = document.getElementById('selected-phone-flag');
+    const selectedCode = document.getElementById('selected-phone-code');
+
+    dropdownButton.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('hidden');
+    });
+
+    dropdownMenu.querySelectorAll('.code-option').forEach((option) => {
+      option.addEventListener('click', () => {
+        selectedFlag.textContent = option.dataset.flag;
+        selectedCode.textContent = option.dataset.code;
+        codeSelect.value = option.dataset.code;
+        dropdownMenu.classList.add('hidden');
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.add('hidden');
+      }
+    });
+  });
+</script>
+{% if success %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const goToLogin = () => {
+      window.location.href = "{% url 'login' %}";
+    };
+    if (window.alert) {
+      alert('Register complete. Redirecting to login…');
+      goToLogin();
+    } else {
+      goToLogin();
+    }
+  });
+</script>
+{% endif %}
 {% endblock content %}

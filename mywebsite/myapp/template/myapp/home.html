@@ -45,29 +45,74 @@
           Talk to our guide
         </a>
       </div>
-      <dl class="mt-10 grid gap-6 text-left sm:grid-cols-3">
-        <div class="rounded-2xl border border-[#AAD9BB] bg-white/80 p-5 shadow-sm">
-          <dt class="text-xs font-semibold uppercase tracking-wide text-[#35605A]">Adventures delivered</dt>
-          <dd class="mt-2 text-3xl font-bold text-gray-900">25k+</dd>
-          <p class="mt-1 text-sm text-gray-600">Riders guided safely through Phuket’s jungles and coastline.</p>
-        </div>
-        <div class="rounded-2xl border border-[#D5F0C1] bg-white/80 p-5 shadow-sm">
-          <dt class="text-xs font-semibold uppercase tracking-wide text-[#35605A]">Certified guides</dt>
-          <dd class="mt-2 text-3xl font-bold text-gray-900">15</dd>
-          <p class="mt-1 text-sm text-gray-600">Local experts trained in wilderness first aid and off-road coaching.</p>
-        </div>
-        <div class="rounded-2xl border border-[#F9F7C9] bg-white/80 p-5 shadow-sm">
-          <dt class="text-xs font-semibold uppercase tracking-wide text-[#7A7310]">Weather ready</dt>
-          <dd class="mt-2 text-3xl font-bold text-gray-900">365</dd>
-          <p class="mt-1 text-sm text-gray-600">All-season routes with alternative trails for sun or rain days.</p>
-        </div>
-      </dl>
     </div>
-    <div class="relative mx-auto w-full max-w-lg lg:m-0">
+    <div class="relative mx-auto w-full max-w-lg lg:m-0 lg:self-start">
       <div class="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-[#AAD9BB]/60 blur-3xl"></div>
       <div class="absolute -right-8 bottom-0 h-32 w-32 rounded-full bg-[#F9F7C9]/60 blur-3xl"></div>
       <div class="relative overflow-hidden rounded-3xl border border-white/40 bg-white shadow-2xl ring-1 ring-black/5">
-        <img src="{% static 'image/atv.png' %}" alt="ATV Phuket adventures" class="h-auto w-full object-contain p-6" />
+        <div class="p-4 sm:p-6">
+          <div id="hero-slider" class="relative h-[360px] w-full overflow-hidden rounded-2xl bg-gray-50 sm:h-[420px]">
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-100 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079223_0.jpg' %}" alt="ATV trail ride 1" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079224_0.jpg' %}" alt="ATV trail ride 2" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079226_0.jpg' %}" alt="ATV trail ride 3" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079227_0.jpg' %}" alt="ATV trail ride 4" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079228_0.jpg' %}" alt="ATV trail ride 5" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079235_0.jpg' %}" alt="ATV trail ride 6" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079236_0.jpg' %}" alt="ATV trail ride 7" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079241_0.jpg' %}" alt="ATV trail ride 8" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079243_0.jpg' %}" alt="ATV trail ride 9" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079245_0.jpg' %}" alt="ATV trail ride 10" class="h-full w-full object-cover" />
+            </div>
+            <div data-hero-slide class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-700">
+              <img src="{% static 'image/S__19079246_0.jpg' %}" alt="ATV trail ride 11" class="h-full w-full object-cover" />
+            </div>
+
+            <button type="button" data-hero-prev class="group absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/80 p-2 shadow hover:bg-white">
+              <span class="sr-only">Previous</span>
+              <svg class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m15 19-7-7 7-7" />
+              </svg>
+            </button>
+            <button type="button" data-hero-next class="group absolute right-4 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/80 p-2 shadow hover:bg-white">
+              <span class="sr-only">Next</span>
+              <svg class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+              </svg>
+            </button>
+            <div class="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+              <button type="button" data-hero-dot="0" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="1" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="2" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="3" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="4" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="5" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="6" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="7" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="8" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="9" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+              <button type="button" data-hero-dot="10" class="h-2.5 w-2.5 rounded-full bg-gray-300 transition hover:bg-[#80BCBD]"></button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -293,6 +338,46 @@
 
 
 
+<section id="location" class="bg-white py-16 dark:bg-gray-950">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
+    <div class="space-y-5">
+      <span class="inline-flex items-center gap-2 rounded-full bg-[#AAD9BB]/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-[#35605A]">
+        Find us
+      </span>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Ride with us in Phuket</h2>
+      <p class="text-base text-gray-600 dark:text-gray-300">
+        We launch every tour from our jungle camp just north of Patong, minutes away from the beach road. Drop by to check out
+        the latest trails, grab gear, or hop straight on your booking.
+      </p>
+      <dl class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+        <div>
+          <dt class="font-semibold text-gray-900 dark:text-white">Open hours</dt>
+          <dd>08:00 – 18:00, seven days a week</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-gray-900 dark:text-white">Meet point</dt>
+          <dd>Phuket ATV Park, Kathu District, Phuket 83120</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="overflow-hidden rounded-3xl border border-[#D5F0C1] shadow-xl shadow-[#D5F0C1]/40">
+      <div class="relative h-80 w-full">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d81423.08187906448!2d98.34183578297603!3d7.956934477290589!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3050342ccd8f69c1%3A0x3b4292f81e6d0b11!2sPhuket%20ATV%20Tour!5e0!3m2!1sen!2sth!4v1764062888367!5m2!1sen!2sth"
+          width="600"
+          height="450"
+          style="border:0;"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="absolute inset-0 h-full w-full"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
 <section class="relative overflow-hidden">
   <div class="absolute inset-x-0 top-0 -z-10 flex justify-center">
     <div class="h-[260px] w-[80%] max-w-4xl rounded-full bg-blue-200/40 blur-3xl dark:bg-blue-500/20"></div>
@@ -321,5 +406,79 @@
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('[data-hero-slide]');
+    if (!slides.length) return;
+    const dots = document.querySelectorAll('[data-hero-dot]');
+    const prevBtn = document.querySelector('[data-hero-prev]');
+    const nextBtn = document.querySelector('[data-hero-next]');
+    let current = 0;
+    let timer;
+
+    const setActiveDot = (index) => {
+      if (!dots.length) return;
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('bg-[#80BCBD]', idx === index);
+        dot.classList.toggle('bg-gray-300', idx !== index);
+      });
+    };
+
+    const showSlide = (index) => {
+      slides.forEach((slide, idx) => {
+        const isActive = idx === index;
+        slide.classList.toggle('opacity-100', isActive);
+        slide.classList.toggle('opacity-0', !isActive);
+        slide.classList.toggle('pointer-events-none', !isActive);
+        slide.style.zIndex = isActive ? '10' : '0';
+      });
+      current = index;
+      setActiveDot(index);
+    };
+
+    const nextSlide = () => {
+      const nextIndex = (current + 1) % slides.length;
+      showSlide(nextIndex);
+    };
+
+    const prevSlide = () => {
+      const prevIndex = (current - 1 + slides.length) % slides.length;
+      showSlide(prevIndex);
+    };
+
+    const startTimer = () => {
+      stopTimer();
+      timer = setInterval(nextSlide, 5000);
+    };
+
+    const stopTimer = () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+
+    nextBtn?.addEventListener('click', () => {
+      nextSlide();
+      startTimer();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      prevSlide();
+      startTimer();
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const index = Number(dot.dataset.heroDot);
+        showSlide(index);
+        startTimer();
+      });
+    });
+
+    showSlide(0);
+    startTimer();
+  });
+</script>
 
 {% endblock content %}

@@ -15,7 +15,9 @@ from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum, Count, Avg, Max
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.utils import timezone
 from django.views.generic import ListView, View
 from django.urls import reverse
@@ -27,6 +29,8 @@ from .models import (
     Booking,
     BookingAddon,
     BookingItem,
+    Bike,
+    BikeAssignment,
     Product,
     Program,
     ProgramImage,
@@ -236,14 +240,46 @@ def program_detail(request: HttpRequest, code: str) -> HttpResponse:
         pricing_table.append(row)
 
     primary = program.primary_image()
-    gallery = program.images.all()
+    gallery_qs = program.images.all()
     if primary is not None:
-        gallery = gallery.exclude(pk=primary.pk)
+        gallery_qs = gallery_qs.exclude(pk=primary.pk)
+    gallery_list = list(gallery_qs)
+
+    program_gallery: List[Dict[str, str]] = []
+    if primary is not None:
+        program_gallery.append(
+            {
+                "url": primary.image.url,
+                "alt": primary.alt_text or program.name,
+            }
+        )
+    for image in gallery_list:
+        program_gallery.append(
+            {
+                "url": image.image.url,
+                "alt": image.alt_text or program.name,
+            }
+        )
+
+    if not program_gallery:
+        fallback_images = [
+            static("image/S__19079223_0.jpg"),
+            static("image/S__19079224_0.jpg"),
+            static("image/S__19079226_0.jpg"),
+            static("image/S__19079227_0.jpg"),
+            static("image/S__19079235_0.jpg"),
+            static("image/S__19079236_0.jpg"),
+        ]
+        program_gallery.extend(
+            {"url": path, "alt": f"{program.name} trail photo"}
+            for path in fallback_images
+        )
 
     context = {
         "program": program,
         "primary_image": primary,
-        "gallery": gallery,
+        "gallery": gallery_list,
+        "program_gallery": program_gallery,
         "itinerary": _split_lines(program.itinerary),
         "schedule_lines": _split_lines(program.schedule_details),
         "includes": _split_lines(program.tour_includes),
@@ -671,6 +707,106 @@ def staff_insights(request: HttpRequest) -> HttpResponse:
     return render(request, "myapp/staff_insights.html", context)
 
 
+@login_required
+def bike_usage_dashboard(request: HttpRequest) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Staff access only")
+
+    bikes = list(Bike.objects.order_by("number"))
+
+    def parse_date(value: str | None):
+        if not value:
+            return timezone.localdate()
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            return timezone.localdate()
+
+    manage_date_str = request.GET.get("manage_date")
+    manage_date = parse_date(manage_date_str)
+
+    if request.method == "POST" and request.POST.get("form") == "assign":
+        manage_date = parse_date(request.POST.get("assign_date"))
+        selected_ids = {int(bike_id) for bike_id in request.POST.getlist("bikes")}
+
+        BikeAssignment.objects.filter(date=manage_date).exclude(bike_id__in=selected_ids).delete()
+
+        existing_ids = set(
+            BikeAssignment.objects.filter(date=manage_date).values_list("bike_id", flat=True)
+        )
+        for bike_id in selected_ids:
+            if bike_id in existing_ids:
+                BikeAssignment.objects.filter(date=manage_date, bike_id=bike_id).update(
+                    assigned_by=request.user
+                )
+            else:
+                BikeAssignment.objects.create(
+                    bike_id=bike_id,
+                    date=manage_date,
+                    assigned_by=request.user,
+                )
+
+        messages.success(
+            request,
+            f"Saved {len(selected_ids)} bike selections for {manage_date.strftime('%d %b %Y')}.",
+        )
+        redirect_url = f"{reverse('bike-usage-page')}?manage_date={manage_date.isoformat()}"
+        return redirect(redirect_url)
+
+    assignments_for_date = (
+        BikeAssignment.objects.filter(date=manage_date)
+        .select_related("bike", "assigned_by")
+        .order_by("bike__number")
+    )
+    selected_ids = {assignment.bike_id for assignment in assignments_for_date}
+
+    context = {
+        "bikes": bikes,
+        "manage_date": manage_date,
+        "selected_ids": selected_ids,
+        "assignments_for_date": assignments_for_date,
+    }
+
+    return render(request, "myapp/bike_usage.html", context)
+
+
+@login_required
+def bike_usage_history(request: HttpRequest) -> HttpResponse:
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Staff access only")
+
+    bikes = list(Bike.objects.order_by("number"))
+    filter_date_value = request.GET.get("filter_date")
+    filter_bike_value = request.GET.get("filter_bike")
+
+    assignment_log = (
+        BikeAssignment.objects.select_related("bike", "assigned_by")
+        .order_by("-date", "bike__number")
+    )
+    if filter_date_value:
+        try:
+            date_filter = datetime.strptime(filter_date_value, "%Y-%m-%d").date()
+            assignment_log = assignment_log.filter(date=date_filter)
+        except ValueError:
+            filter_date_value = None
+    if filter_bike_value:
+        try:
+            assignment_log = assignment_log.filter(bike_id=int(filter_bike_value))
+        except ValueError:
+            filter_bike_value = None
+
+    assignment_log = assignment_log[:200]
+
+    context = {
+        "bikes": bikes,
+        "filter_date_value": filter_date_value,
+        "filter_bike_value": filter_bike_value or "",
+        "assignment_log": assignment_log,
+    }
+
+    return render(request, "myapp/bike_usage_history.html", context)
+
+
 def userLogin(request: HttpRequest) -> HttpResponse:
     context: Dict[str, Any] = {}
 
@@ -796,7 +932,8 @@ def userRegist(request: HttpRequest) -> HttpResponse:
                 last_name=lastname,
             )
             Profile.objects.get_or_create(user=new_user)
-            context["message"] = "Register complete."
+            context["success"] = True
+            context["message"] = ""
 
     return render(request, "myapp/register.html", context)
 

@@ -24,6 +24,8 @@ urlpatterns = [
     path('products/<int:pk>/', views.product_detail, name='product-detail'),
     path('products/', views.ProductListView.as_view(), name='product_list'),
     path('staff/<int:staff_id>/feedback/', views.staff_feedback, name='staff-feedback'),
+    path('fleet/bikes/', views.bike_usage_dashboard, name='bike-usage-page'),
+    path('fleet/history/', views.bike_usage_history, name='bike-usage-history'),
 
     path("ajax/user/detail/", views.UserDetailAjax.as_view(), name="ajax_user_detail"),
     path("ajax/user/create/", views.CreateUserAjax.as_view(), name="ajax_user_create"),
